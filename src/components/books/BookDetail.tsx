@@ -29,7 +29,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { getBookDetail } from "../functions/getBookDetail";
+import { getBookDetail } from "../../functions/getBookDetail";
 
 // Types
 type Book = {
