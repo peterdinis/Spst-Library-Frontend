@@ -1,3 +1,5 @@
+"use client";
+
 import { Link, useParams } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import {
@@ -26,29 +28,38 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
+import { getBookDetail } from "../functions/getBookDetail";
 
-// Types defined directly in this component
+// Types
 type Book = {
 	id: string;
 	title: string;
-	authorId: string;
-	authorName: string;
-	categoryName: string;
-	isbn: string;
-	publishedYear: number;
-	availableCopies: number;
-	totalCopies: number;
+	authorId?: string;
+	authorName?: string;
+	categoryName?: string;
+	category?: string;
+	isbn?: string;
+	publishedYear?: number;
+	year?: number;
+	availableCopies?: number;
+	totalCopies?: number;
 	coverUrl?: string;
 	description?: string;
 	language?: string;
 	publisher?: string;
 	pages?: number;
+	isAvailable?: boolean;
+	author?: string;
+	categoryId?: string;
+	photoPath?: string;
+	addedToLibrary?: string;
 };
 
 type Author = {
 	id: string;
 	name: string;
-	biography: string;
+	biography?: string;
 	photoUrl?: string;
 	nationality?: string;
 };
@@ -62,139 +73,7 @@ type Borrow = {
 	returnedDate?: Date;
 };
 
-// Mock data - JEDINÁ DEFINÍCIA
-const mockBooks: Book[] = [
-	{
-		id: "1",
-		title: "Harry Potter a Kameň mudrcov",
-		authorId: "1",
-		authorName: "J.K. Rowling",
-		categoryName: "Fantasy",
-		isbn: "9788020415628",
-		publishedYear: 1997,
-		availableCopies: 3,
-		totalCopies: 5,
-		coverUrl:
-			"https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&h=800&fit=crop",
-		description:
-			"Prvý diel slávnej série o mladom čarodejníkovi Harrym Potterovi. Príbeh začína, keď sa Harry dozvie, že je čarodejník a odchádza do Rokfortskej školy čarodejníctva, kde objavuje svoj talent a začína boj proti temnému čarodejníkovi Voldemortovi.",
-		language: "Slovenský",
-		publisher: "Slovart",
-		pages: 304,
-	},
-	{
-		id: "2",
-		title: "1984",
-		authorId: "2",
-		authorName: "George Orwell",
-		categoryName: "Dystopia",
-		isbn: "9780451524935",
-		publishedYear: 1949,
-		availableCopies: 2,
-		totalCopies: 4,
-		coverUrl:
-			"https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=600&h=800&fit=crop",
-		description:
-			"Klasické dielo antiutopickej literatúry, ktoré opisuje totalitný svet, kde vláda neustále sleduje svojich občanov a kontroluje ich myslenie. Hlavný hrdina Winston Smith sa pokúša zachovať si svoju ľudskosť v svete plnom klamstiev a manipulácie.",
-		language: "Slovenský",
-		publisher: "Slovenský spisovateľ",
-		pages: 328,
-	},
-	{
-		id: "3",
-		title: "To",
-		authorId: "3",
-		authorName: "Stephen King",
-		categoryName: "Horor",
-		isbn: "9780450411434",
-		publishedYear: 1986,
-		availableCopies: 1,
-		totalCopies: 3,
-		coverUrl:
-			"https://images.unsplash.com/photo-1532012197267-da84d127e765?w=600&h=800&fit=crop",
-		description:
-			"Rozsiahly hororový román, ktorý sleduje skupinu detí v meste Derry a ich stretnutie s démonickou bytosťou, ktorá sa objavuje každých 27 rokov. Príbeh sa odohráva v dvoch časových líniách – v detstve a v dospelosti, keď sa skupina opäť stretáva, aby dokončila boj s démonom.",
-		language: "Slovenský",
-		publisher: "IKAR",
-		pages: 1138,
-	},
-	{
-		id: "4",
-		title: "Vražda v Orient exprese",
-		authorId: "4",
-		authorName: "Agatha Christie",
-		categoryName: "Detektívka",
-		isbn: "9780007119318",
-		publishedYear: 1934,
-		availableCopies: 4,
-		totalCopies: 6,
-		coverUrl:
-			"https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=600&h=800&fit=crop",
-		description:
-			"Jedna z najslávnejších detektívok Agathy Christie, v ktorej sa belgický detektív Hercule Poirot ocitne na luxusnom vlaku Orient Express, kde je spáchaná vražda. Všetci cestujúci majú alibi a Poirot musí využiť všetky svoje schopnosti, aby odhalil vraha.",
-		language: "Slovenský",
-		publisher: "Slovart",
-		pages: 256,
-	},
-	{
-		id: "5",
-		title: "Starca a more",
-		authorId: "5",
-		authorName: "Ernest Hemingway",
-		categoryName: "Literatúra faktu",
-		isbn: "9780684801223",
-		publishedYear: 1952,
-		availableCopies: 2,
-		totalCopies: 3,
-		coverUrl:
-			"https://images.unsplash.com/photo-1531901599638-a89bb60971a3?w=600&h=800&fit=crop",
-		description:
-			"Poviedka, ktorá priniesla Hemingwayovi Nobelovu cenu za literatúru. Príbeh starého kubánskeho rybára Santiaga, ktorý po 84 dňoch bez úlovku chytí obrovskú mečúňa. Trojdňový boj s rybou sa stáva metaforou ľudského zápasu s prírodou a vlastnými obmedzeniami.",
-		language: "Slovenský",
-		publisher: "Tatran",
-		pages: 127,
-	},
-];
-
-const mockAuthors: Author[] = [
-	{
-		id: "1",
-		name: "J.K. Rowling",
-		biography:
-			"Britská spisovateľka, známa predovšetkým ako autorka série románov o Harry Potterovi.",
-		nationality: "Britská",
-	},
-	{
-		id: "2",
-		name: "George Orwell",
-		biography:
-			"Britský spisovateľ a novinár, známy svojimi dielami 1984 a Farmou zvierat.",
-		nationality: "Britská",
-	},
-	{
-		id: "3",
-		name: "Stephen King",
-		biography:
-			"Americký spisovateľ hororov, sci-fi a fantasy, autor viac ako 60 románov.",
-		nationality: "Americká",
-	},
-	{
-		id: "4",
-		name: "Agatha Christie",
-		biography:
-			"Britská spisovateľka detektívnych románov, najpredávanejšia autorka všetkých čias.",
-		nationality: "Britská",
-	},
-	{
-		id: "5",
-		name: "Ernest Hemingway",
-		biography:
-			"Americký spisovateľ a novinár, nositeľ Nobelovej ceny za literatúru z roku 1954.",
-		nationality: "Americká",
-	},
-];
-
-// Similar books data
+// Similar books data - budeme načítavať dynamicky alebo ponecháme statické
 const similarBooksData = [
 	{
 		id: "1",
@@ -272,8 +151,6 @@ const useBorrows = () => {
 
 export function BookDetailPage() {
 	const { bookId } = useParams({ from: "/books/$bookId" });
-	const [book, setBook] = useState<Book | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
 	const [isBorrowed, setIsBorrowed] = useState(false);
 	const [currentBorrowId, setCurrentBorrowId] = useState<string | null>(null);
 	const [showAlert, setShowAlert] = useState(false);
@@ -285,26 +162,53 @@ export function BookDetailPage() {
 	const auth = useAuth();
 	const borrows = useBorrows();
 
-	useEffect(() => {
-		loadBook();
-	}, [bookId]);
+	// Použitie useQuery na získanie dát o knihe
+	const {
+		data: book,
+		isLoading,
+		isError,
+		error,
+		refetch,
+	} = useQuery({
+		queryKey: ["book", bookId],
+		queryFn: async () => {
+			if (!bookId) return null;
+
+			const result = await getBookDetail({ data: { bookId } });
+			if (!result) return null;
+
+			// Transformácia dát z API na náš formát
+			return {
+				id: result.data.id?.toString() || "",
+				title: result.data.title || "",
+				authorId: result.data.authorId?.toString(),
+				authorName: result.data.author || result.data.authorName,
+				categoryName: result.data.category || result.data.categoryName,
+				isbn: result.data.isbn,
+				publishedYear: result.data.year || result.data.publishedYear,
+				availableCopies: result.data.availableCopies || 1,
+				totalCopies: result.data.totalCopies || 1,
+				coverUrl: result.data.photoPath || result.data.coverUrl,
+				description: result.data.description,
+				language: result.data.language,
+				publisher: result.data.publisher,
+				pages: result.data.pages,
+				isAvailable: result.data.isAvailable,
+				author: result.data.author,
+				category: result.data.category,
+				photoPath: result.data.photoPath,
+				addedToLibrary: result.data.addedToLibrary,
+			} as Book;
+		},
+		enabled: !!bookId,
+		retry: 2,
+	});
 
 	useEffect(() => {
-		if (book) {
+		if (book && auth.isAuthenticated) {
 			checkBorrowStatus();
 		}
-	}, [book, borrows.activeBorrows]);
-
-	const loadBook = () => {
-		setIsLoading(true);
-
-		// Simulate API call - POUŽÍVAM JEDINÉ DÁTA z mockBooks
-		setTimeout(() => {
-			const foundBook = mockBooks.find((b) => b.id === bookId);
-			setBook(foundBook || null);
-			setIsLoading(false);
-		}, 500);
-	};
+	}, [book, borrows.activeBorrows, auth.isAuthenticated]);
 
 	const checkBorrowStatus = () => {
 		if (!book || !auth.isAuthenticated) return;
@@ -332,7 +236,7 @@ export function BookDetailPage() {
 		}
 
 		try {
-			if (book.availableCopies === 0) {
+			if (book.availableCopies === 0 || !book.isAvailable) {
 				throw new Error("Kniha je momentálne vypožičaná");
 			}
 
@@ -346,15 +250,8 @@ export function BookDetailPage() {
 			setShowAlert(true);
 			setTimeout(() => setShowAlert(false), 5000);
 
-			// Update local book availability
-			setBook((prev) =>
-				prev
-					? {
-							...prev,
-							availableCopies: prev.availableCopies - 1,
-						}
-					: null,
-			);
+			// Refetch na získanie aktuálnych dát
+			refetch();
 		} catch (error: any) {
 			setAlertMessage(error.message || "Chyba pri vypožičaní knihy");
 			setAlertType("error");
@@ -375,15 +272,8 @@ export function BookDetailPage() {
 			setShowAlert(true);
 			setTimeout(() => setShowAlert(false), 5000);
 
-			// Update local book availability
-			setBook((prev) =>
-				prev
-					? {
-							...prev,
-							availableCopies: prev.availableCopies + 1,
-						}
-					: null,
-			);
+			// Refetch na získanie aktuálnych dát
+			refetch();
 		} catch (error: any) {
 			setAlertMessage(error.message || "Chyba pri vrátení knihy");
 			setAlertType("error");
@@ -415,6 +305,30 @@ export function BookDetailPage() {
 		);
 	}
 
+	if (isError) {
+		return (
+			<div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
+				<Card className="max-w-md w-full">
+					<CardContent className="p-8 text-center space-y-4">
+						<AlertCircle className="h-12 w-12 text-destructive mx-auto" />
+						<h2 className="text-2xl font-bold">Chyba pri načítaní</h2>
+						<p className="text-muted-foreground">
+							{error instanceof Error ? error.message : "Nepodarilo sa načítať detaily knihy"}
+						</p>
+						<div className="flex gap-2 justify-center mt-4">
+							<Button onClick={() => refetch()}>
+								Skúsiť znova
+							</Button>
+							<Button asChild variant="outline">
+								<Link to="/books">Späť na zoznam kníh</Link>
+							</Button>
+						</div>
+					</CardContent>
+				</Card>
+			</div>
+		);
+	}
+
 	if (!book) {
 		return (
 			<div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
@@ -435,12 +349,24 @@ export function BookDetailPage() {
 	}
 
 	const currentBorrow = borrows.activeBorrows.find((b) => b.bookId === book.id);
-	const author = mockAuthors.find((a) => a.id === book.authorId);
+
+	// Vytvorenie fiktívneho autora z dát knihy (môžete pridať API pre autora)
+	const author: Author = {
+		id: book.authorId || "unknown",
+		name: book.authorName || book.author || "Neznámy autor",
+		biography: "",
+		nationality: "",
+	};
+
 	const alertVariants = {
 		success: "border-green-200 bg-green-50 dark:bg-green-900/20",
 		error: "border-red-200 bg-red-50 dark:bg-red-900/20",
 		warning: "border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20",
 	};
+
+	const availableCopies = book.availableCopies || 0;
+	const totalCopies = book.totalCopies || 0;
+	const isBookAvailable = book.isAvailable !== false && availableCopies > 0;
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-4 md:p-8">
@@ -497,9 +423,9 @@ export function BookDetailPage() {
 					>
 						<Card className="overflow-hidden shadow-xl border-border/50">
 							<div className="relative">
-								{book.coverUrl ? (
+								{book.coverUrl || book.photoPath ? (
 									<img
-										src={book.coverUrl}
+										src={book.coverUrl || book.photoPath}
 										alt={book.title}
 										className="w-full h-96 object-cover"
 										loading="lazy"
@@ -513,13 +439,13 @@ export function BookDetailPage() {
 												<h3 className="text-2xl font-bold mb-2">
 													{book.title}
 												</h3>
-												<p className="text-lg opacity-90">{book.authorName}</p>
+												<p className="text-lg opacity-90">{book.authorName || book.author}</p>
 											</div>
 										</div>
 									</div>
 								)}
 								<Badge className="absolute top-4 right-4">
-									{book.categoryName}
+									{book.categoryName || book.category || "Kategória"}
 								</Badge>
 							</div>
 
@@ -527,24 +453,21 @@ export function BookDetailPage() {
 								<div className="flex items-center justify-between mb-6">
 									<div className="space-y-1">
 										<div className="text-2xl font-bold text-primary">
-											{book.availableCopies}/{book.totalCopies}
+											{availableCopies}/{totalCopies}
 										</div>
 										<div className="text-sm text-muted-foreground">
 											dostupné kópie
 										</div>
 									</div>
 									<Badge
-										variant={
-											book.availableCopies > 0 ? "success" : "destructive"
-										}
 										className="text-sm py-2 px-4"
 									>
-										{book.availableCopies > 0 ? "Dostupné" : "Vypožičané"}
+										{isBookAvailable ? "Dostupné" : "Vypožičané"}
 									</Badge>
 								</div>
 
 								<AnimatePresence mode="wait">
-									{!isBorrowed && book.availableCopies > 0 ? (
+									{!isBorrowed && isBookAvailable ? (
 										<motion.div
 											key="borrow"
 											initial={{ opacity: 0, y: 10 }}
@@ -668,7 +591,7 @@ export function BookDetailPage() {
 								<CardDescription className="text-lg flex items-center gap-2">
 									<User className="h-5 w-5" />
 									<span className="hover:text-primary transition-colors">
-										{book.authorName}
+										{book.authorName || book.author}
 									</span>
 								</CardDescription>
 							</CardHeader>
@@ -680,7 +603,7 @@ export function BookDetailPage() {
 									</h3>
 									<div className="prose prose-lg dark:prose-invert max-w-none">
 										<p className="leading-relaxed text-muted-foreground">
-											{book.description}
+											{book.description || "Popis nie je k dispozícii."}
 										</p>
 									</div>
 								</div>
@@ -691,31 +614,37 @@ export function BookDetailPage() {
 											Detailné informácie
 										</h4>
 										<div className="space-y-3">
-											<div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
-												<span className="text-sm text-muted-foreground">
-													ISBN
-												</span>
-												<span className="font-mono">{book.isbn}</span>
-											</div>
-											<div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
-												<span className="text-sm text-muted-foreground flex items-center gap-1">
-													<Calendar className="h-4 w-4" />
-													Rok vydania
-												</span>
-												<span>{book.publishedYear}</span>
-											</div>
-											<div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
-												<span className="text-sm text-muted-foreground">
-													Kategória
-												</span>
-												<Badge
-													variant="secondary"
-													className="flex items-center gap-1"
-												>
-													<Tag className="h-3 w-3" />
-													{book.categoryName}
-												</Badge>
-											</div>
+											{book.isbn && (
+												<div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+													<span className="text-sm text-muted-foreground">
+														ISBN
+													</span>
+													<span className="font-mono">{book.isbn}</span>
+												</div>
+											)}
+											{book.publishedYear && (
+												<div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+													<span className="text-sm text-muted-foreground flex items-center gap-1">
+														<Calendar className="h-4 w-4" />
+														Rok vydania
+													</span>
+													<span>{book.publishedYear}</span>
+												</div>
+											)}
+											{(book.categoryName || book.category) && (
+												<div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+													<span className="text-sm text-muted-foreground">
+														Kategória
+													</span>
+													<Badge
+														variant="secondary"
+														className="flex items-center gap-1"
+													>
+														<Tag className="h-3 w-3" />
+														{book.categoryName || book.category}
+													</Badge>
+												</div>
+											)}
 										</div>
 									</div>
 
@@ -826,7 +755,7 @@ export function BookDetailPage() {
 							<CardHeader>
 								<CardTitle className="text-xl">Podobné knihy</CardTitle>
 								<CardDescription>
-									Ďalšie knihy z kategórie {book.categoryName}
+									Ďalšie knihy z kategórie {book.categoryName || book.category || "fantasy"}
 								</CardDescription>
 							</CardHeader>
 							<CardContent>
@@ -852,16 +781,10 @@ export function BookDetailPage() {
 																{similarBook.authorName}
 															</p>
 															<div className="flex items-center justify-between mt-2">
-																<Badge variant="outline" size="sm">
+																<Badge variant="outline">
 																	{similarBook.categoryName}
 																</Badge>
 																<Badge
-																	variant={
-																		similarBook.availableCopies > 0
-																			? "success"
-																			: "destructive"
-																	}
-																	size="sm"
 																>
 																	{similarBook.availableCopies > 0
 																		? "Dostupné"

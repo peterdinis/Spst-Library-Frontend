@@ -22,79 +22,25 @@ import {
 	AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { getAllBooks } from "../functions/getAllBooks";
 
-// Mock dátová štruktúra
+// Typ pre knihu z API
 interface Book {
-	id: string;
+	id: number | string;
 	title: string;
 	author?: string;
 	description?: string;
-	publishedYear?: number;
+	year?: number;
 	category?: string;
 	isAvailable?: boolean;
+	// Ďalšie polia podľa vášho API
+	publisher?: string;
+	pages?: number;
+	language?: string;
+	photoPath?: string;
+	addedToLibrary?: string;
 }
-
-// Mock data
-const MOCK_BOOKS: Book[] = [
-	{
-		id: "1",
-		title: "Veľký Gatsby",
-		author: "F. Scott Fitzgerald",
-		description:
-			"Román o americkom sne, láske a spoločenskej triede v období jazzu.",
-		publishedYear: 1925,
-		category: "Román",
-		isAvailable: true,
-	},
-	{
-		id: "2",
-		title: "Sto rokov samoty",
-		author: "Gabriel García Márquez",
-		description:
-			"Magický realismus sledujúci históriu rodiny Buendía v meste Macondo.",
-		publishedYear: 1967,
-		category: "Magický realismus",
-		isAvailable: false,
-	},
-	{
-		id: "3",
-		title: "Vražda v Oriente Expresse",
-		author: "Agatha Christie",
-		description:
-			"Detektívny príbeh s Herculom Poirotom riešiacim vraždu v luxusnom vlaku.",
-		publishedYear: 1934,
-		category: "Detektívka",
-		isAvailable: true,
-	},
-	{
-		id: "4",
-		title: "1984",
-		author: "George Orwell",
-		description: "Dystopický román o totalitnom režime a dohliadaní.",
-		publishedYear: 1949,
-		category: "Dystopia",
-		isAvailable: true,
-	},
-	{
-		id: "5",
-		title: "Pán prsteňov",
-		author: "J.R.R. Tolkien",
-		description:
-			"Fantasy epos o hobitovi Frodovi a jeho misii zničiť Jediný prsteň.",
-		publishedYear: 1954,
-		category: "Fantasy",
-		isAvailable: true,
-	},
-	{
-		id: "6",
-		title: "Malý princ",
-		author: "Antoine de Saint-Exupéry",
-		description: "Filozofický príbeh o priateľstve, láske a zmysle života.",
-		publishedYear: 1943,
-		category: "Filozofia",
-		isAvailable: false,
-	},
-];
 
 const AllBooksWrapper: FC = () => {
 	const navigate = useNavigate();
@@ -104,11 +50,36 @@ const AllBooksWrapper: FC = () => {
 	const [selectedCategory, setSelectedCategory] = useState<string>("all");
 	const [availability, setAvailability] = useState<string>("all");
 
-	// Používame mock data namiesto hooku
-	const books = MOCK_BOOKS;
-	const isLoading = false;
-	const isError = false;
-	const error = null;
+	// Použitie useQuery na získanie dát zo server funkcie
+	const {
+		data: books = [],
+		isLoading,
+		isError,
+		error,
+		refetch,
+	} = useQuery({
+		queryKey: ["books"],
+		queryFn: async () => {
+			const result = await getAllBooks();
+			// Transformácia dát podľa potreby
+			return Array.isArray(result) 
+				? result.map((book: any) => ({
+					id: book.id?.toString() || "",
+					title: book.title || "",
+					author: book.author,
+					description: book.description,
+					publishedYear: book.year,
+					category: book.category,
+					isAvailable: book.isAvailable,
+					publisher: book.publisher,
+					pages: book.pages,
+					language: book.language,
+					photoPath: book.photoPath,
+					addedToLibrary: book.addedToLibrary,
+				}))
+				: [];
+		},
+	});
 
 	// Memoizované filtrovanie pre lepšiu výkonnosť
 	const filteredBooks = useMemo(() => {
@@ -134,6 +105,17 @@ const AllBooksWrapper: FC = () => {
 		});
 	}, [books, searchTerm, selectedCategory, availability]);
 
+	// Dynamické kategórie z API dát
+	const categories = useMemo(() => {
+		const categorySet = new Set<string>();
+		books.forEach(book => {
+			if (book.category) {
+				categorySet.add(book.category);
+			}
+		});
+		return Array.from(categorySet).sort();
+	}, [books]);
+
 	const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchTerm(e.target.value);
 		setCurrentPage(1);
@@ -146,9 +128,9 @@ const AllBooksWrapper: FC = () => {
 	const clearFilters = () => {
 		setSelectedCategory("all");
 		setAvailability("all");
-		setSearchTerm(""); // Pridané vymazanie vyhľadávania
+		setSearchTerm("");
 		setCurrentPage(1);
-		setShowFilters(false); // Zatvoríme filtre po vymazaní
+		setShowFilters(false);
 	};
 
 	const hasActiveFilters =
@@ -182,12 +164,12 @@ const AllBooksWrapper: FC = () => {
 		},
 	};
 
-	// Loading state (už nepoužívame hook, ale necháme pre konzistenciu)
+	// Loading state
 	if (isLoading) {
 		return (
-			<section className="py-16 bg-gradient-to-b from-background to-muted/30">
+			<section className="py-16 bg-linear-to-b from-background to-muted/30">
 				<div className="container mx-auto px-4 text-center">
-					<div className="flex flex-col items-center justify-center min-h-[400px]">
+					<div className="flex flex-col items-center justify-center min-h-100">
 						<Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
 						<h3 className="text-xl font-semibold mb-2">Načítavam knihy...</h3>
 						<p className="text-muted-foreground">
@@ -199,20 +181,20 @@ const AllBooksWrapper: FC = () => {
 		);
 	}
 
-	// Error state (už nepoužívame hook, ale necháme pre konzistenciu)
+	// Error state
 	if (isError) {
 		return (
-			<section className="py-16 bg-gradient-to-b from-background to-muted/30">
+			<section className="py-16 bg-linear-to-b from-background to-muted/30">
 				<div className="container mx-auto px-4 text-center">
-					<div className="flex flex-col items-center justify-center min-h-[400px]">
+					<div className="flex flex-col items-center justify-center min-h-100">
 						<AlertCircle className="h-12 w-12 text-destructive mb-4" />
 						<h3 className="text-xl font-semibold mb-2">
 							Chyba pri načítaní kníh
 						</h3>
 						<p className="text-muted-foreground mb-4">
-							{error?.message || "Nepodarilo sa načítať zoznam kníh."}
+							{error instanceof Error ? error.message : "Neznáma chyba"}
 						</p>
-						<Button variant="outline" onClick={() => window.location.reload()}>
+						<Button variant="outline" onClick={() => refetch()}>
 							Skúsiť znova
 						</Button>
 					</div>
@@ -326,14 +308,11 @@ const AllBooksWrapper: FC = () => {
 											className="w-full p-2 border rounded-md"
 										>
 											<option value="all">Všetky kategórie</option>
-											<option value="Román">Román</option>
-											<option value="Magický realismus">
-												Magický realismus
-											</option>
-											<option value="Detektívka">Detektívka</option>
-											<option value="Dystopia">Dystopia</option>
-											<option value="Fantasy">Fantasy</option>
-											<option value="Filozofia">Filozofia</option>
+											{categories.map((category) => (
+												<option key={category} value={category}>
+													{category}
+												</option>
+											))}
 										</select>
 									</div>
 									<div>
@@ -458,12 +437,29 @@ const AllBooksWrapper: FC = () => {
 												<p className="text-sm text-muted-foreground line-clamp-3">
 													{book.description || "Žiadny popis."}
 												</p>
-												{book.publishedYear && (
-													<div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
-														<Calendar className="h-3 w-3" />
-														Rok vydania: {book.publishedYear}
-													</div>
-												)}
+												<div className="flex flex-wrap gap-3 mt-3 text-xs text-muted-foreground">
+													{book.publishedYear && (
+														<div className="flex items-center gap-1">
+															<Calendar className="h-3 w-3" />
+															Rok: {book.publishedYear}
+														</div>
+													)}
+													{book.publisher && (
+														<div className="flex items-center gap-1">
+															Vydavateľ: {book.publisher}
+														</div>
+													)}
+													{book.pages && (
+														<div className="flex items-center gap-1">
+															Strany: {book.pages}
+														</div>
+													)}
+													{book.language && (
+														<div className="flex items-center gap-1">
+															Jazyk: {book.language}
+														</div>
+													)}
+												</div>
 											</CardContent>
 										</Card>
 									</motion.div>
