@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getAllBooks } from "../../functions/getAllBooks";
+import { getAllBooks } from "../../functions/books/getAllBooks";
 
 // Typ pre knihu z API
 interface Book {
