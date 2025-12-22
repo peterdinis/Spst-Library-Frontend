@@ -42,8 +42,8 @@ const DashboardSkeleton = () => {
 							i % 3 === 0
 								? "from-blue-100/30 to-cyan-100/30 dark:from-blue-900/20 dark:to-cyan-900/20"
 								: i % 3 === 1
-								? "from-purple-100/30 to-pink-100/30 dark:from-purple-900/20 dark:to-pink-900/20"
-								: "from-green-100/30 to-teal-100/30 dark:from-green-900/20 dark:to-teal-900/20"
+									? "from-purple-100/30 to-pink-100/30 dark:from-purple-900/20 dark:to-pink-900/20"
+									: "from-green-100/30 to-teal-100/30 dark:from-green-900/20 dark:to-teal-900/20"
 						} blur-md`}
 						style={{
 							left: `${20 + i * 15}%`,
@@ -223,7 +223,7 @@ const DashboardSkeleton = () => {
 					{/* Stats with orbiting balls */}
 					<div className="relative">
 						<div className="h-4 w-24 rounded-md bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 mb-2" />
-						
+
 						{/* Orbiting stats dots */}
 						<div className="flex space-x-1">
 							{[1, 2, 3, 4, 5].map((i) => (
@@ -257,10 +257,7 @@ const DashboardSkeleton = () => {
 					</div>
 
 					{/* Button with bouncing ball inside */}
-					<motion.div
-						whileHover={{ scale: 1.05 }}
-						className="relative"
-					>
+					<motion.div whileHover={{ scale: 1.05 }} className="relative">
 						<div className="h-8 w-20 rounded-md bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 overflow-hidden">
 							{/* Bouncing button ball */}
 							<motion.div
@@ -275,7 +272,7 @@ const DashboardSkeleton = () => {
 								className="absolute top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-400"
 							/>
 						</div>
-						
+
 						{/* Button orbiting dots */}
 						{[-1, 0, 1].map((i) => (
 							<motion.div
@@ -324,7 +321,7 @@ const DashboardSkeleton = () => {
 						}}
 						className="absolute w-4 h-4 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 -top-1"
 					/>
-					
+
 					{/* Trail dots */}
 					{[0, 1, 2, 3].map((i) => (
 						<motion.div
@@ -341,8 +338,8 @@ const DashboardSkeleton = () => {
 							className="absolute w-1 h-1 rounded-full bg-gradient-to-br from-blue-300 to-purple-300"
 							style={{
 								left: `${25 * (i + 1)}%`,
-								top: '50%',
-								transform: 'translateY(-50%)',
+								top: "50%",
+								transform: "translateY(-50%)",
 							}}
 						/>
 					))}
@@ -371,10 +368,10 @@ const DashboardSkeleton = () => {
 							i % 4 === 0
 								? "bg-blue-300/20"
 								: i % 4 === 1
-								? "bg-purple-300/20"
-								: i % 4 === 2
-								? "bg-pink-300/20"
-								: "bg-cyan-300/20"
+									? "bg-purple-300/20"
+									: i % 4 === 2
+										? "bg-pink-300/20"
+										: "bg-cyan-300/20"
 						}`}
 						style={{
 							left: `${Math.random() * 100}%`,

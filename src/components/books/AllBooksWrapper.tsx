@@ -62,21 +62,21 @@ const AllBooksWrapper: FC = () => {
 		queryFn: async () => {
 			const result = await getAllBooks();
 			// Transformácia dát podľa potreby
-			return Array.isArray(result) 
+			return Array.isArray(result)
 				? result.map((book: any) => ({
-					id: book.id?.toString() || "",
-					title: book.title || "",
-					author: book.author,
-					description: book.description,
-					publishedYear: book.year,
-					category: book.category,
-					isAvailable: book.isAvailable,
-					publisher: book.publisher,
-					pages: book.pages,
-					language: book.language,
-					photoPath: book.photoPath,
-					addedToLibrary: book.addedToLibrary,
-				}))
+						id: book.id?.toString() || "",
+						title: book.title || "",
+						author: book.author,
+						description: book.description,
+						publishedYear: book.year,
+						category: book.category,
+						isAvailable: book.isAvailable,
+						publisher: book.publisher,
+						pages: book.pages,
+						language: book.language,
+						photoPath: book.photoPath,
+						addedToLibrary: book.addedToLibrary,
+					}))
 				: [];
 		},
 	});
@@ -108,7 +108,7 @@ const AllBooksWrapper: FC = () => {
 	// Dynamické kategórie z API dát
 	const categories = useMemo(() => {
 		const categorySet = new Set<string>();
-		books.forEach(book => {
+		books.forEach((book) => {
 			if (book.category) {
 				categorySet.add(book.category);
 			}

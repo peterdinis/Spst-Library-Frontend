@@ -313,12 +313,12 @@ export function BookDetailPage() {
 						<AlertCircle className="h-12 w-12 text-destructive mx-auto" />
 						<h2 className="text-2xl font-bold">Chyba pri načítaní</h2>
 						<p className="text-muted-foreground">
-							{error instanceof Error ? error.message : "Nepodarilo sa načítať detaily knihy"}
+							{error instanceof Error
+								? error.message
+								: "Nepodarilo sa načítať detaily knihy"}
 						</p>
 						<div className="flex gap-2 justify-center mt-4">
-							<Button onClick={() => refetch()}>
-								Skúsiť znova
-							</Button>
+							<Button onClick={() => refetch()}>Skúsiť znova</Button>
 							<Button asChild variant="outline">
 								<Link to="/books">Späť na zoznam kníh</Link>
 							</Button>
@@ -439,7 +439,9 @@ export function BookDetailPage() {
 												<h3 className="text-2xl font-bold mb-2">
 													{book.title}
 												</h3>
-												<p className="text-lg opacity-90">{book.authorName || book.author}</p>
+												<p className="text-lg opacity-90">
+													{book.authorName || book.author}
+												</p>
 											</div>
 										</div>
 									</div>
@@ -459,9 +461,7 @@ export function BookDetailPage() {
 											dostupné kópie
 										</div>
 									</div>
-									<Badge
-										className="text-sm py-2 px-4"
-									>
+									<Badge className="text-sm py-2 px-4">
 										{isBookAvailable ? "Dostupné" : "Vypožičané"}
 									</Badge>
 								</div>
@@ -755,7 +755,8 @@ export function BookDetailPage() {
 							<CardHeader>
 								<CardTitle className="text-xl">Podobné knihy</CardTitle>
 								<CardDescription>
-									Ďalšie knihy z kategórie {book.categoryName || book.category || "fantasy"}
+									Ďalšie knihy z kategórie{" "}
+									{book.categoryName || book.category || "fantasy"}
 								</CardDescription>
 							</CardHeader>
 							<CardContent>
@@ -784,8 +785,7 @@ export function BookDetailPage() {
 																<Badge variant="outline">
 																	{similarBook.categoryName}
 																</Badge>
-																<Badge
-																>
+																<Badge>
 																	{similarBook.availableCopies > 0
 																		? "Dostupné"
 																		: "Vypožičané"}
