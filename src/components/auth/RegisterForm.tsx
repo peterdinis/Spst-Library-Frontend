@@ -26,8 +26,6 @@ import { registerSchema, type RegisterInput } from "@/api/authApi";
 import { toast } from "sonner";
 import { registerUser } from "@/functions/auth/authFunctions";
 import { useForm } from "@tanstack/react-form";
-import { zodValidator } from "@tanstack/zod-form-adapter";
-import { z } from "zod";
 
 const RegisterForm: FC = () => {
 	const router = useRouter();
@@ -48,7 +46,7 @@ const RegisterForm: FC = () => {
 				}, 2000);
 			} else {
 				toast.error("Registration failed", {
-					description: "An error occurred during registration",
+					description: response.message || "An error occurred during registration",
 				});
 			}
 		},
@@ -68,25 +66,9 @@ const RegisterForm: FC = () => {
 			role: "Student" as "Student" | "Teacher" | "Admin",
 		},
 		onSubmit: async ({ value }) => {
-			// Validate passwords match manually or via schema refinement if possible
-			// Here we are using Zod adapter so we can reuse the schema but confirmPassword complicates it slightly
-			// for the mutation payload. 
-			// We'll strip confirmPassword before sending.
-
 			const { confirmPassword, ...registrationData } = value;
-
-			// Trigger mutation
 			registerMutation.mutate(registrationData);
 		},
-		validatorAdapter: zodValidator(),
-		validators: {
-			onChange: registerSchema.extend({
-				confirmPassword: z.string().min(6, "Password confirmation is required")
-			}).refine((data) => data.password === data.confirmPassword, {
-				message: "Passwords don't match",
-				path: ["confirmPassword"],
-			}),
-		}
 	});
 
 
@@ -184,6 +166,12 @@ const RegisterForm: FC = () => {
 							{/* Full Name Field */}
 							<form.Field
 								name="fullName"
+								validators={{
+									onChange: ({ value }) => {
+										const result = registerSchema.shape.fullName.safeParse(value);
+										return result.success ? undefined : result.error.issues[0].message;
+									},
+								}}
 								children={(field) => (
 									<motion.div
 										initial={{ opacity: 0, x: -20 }}
@@ -215,7 +203,7 @@ const RegisterForm: FC = () => {
 											/>
 										</div>
 										{field.state.meta.errors ? (
-											<p className="text-sm text-red-500">
+											<p className="text-sm text-red-500 italic">
 												{field.state.meta.errors.join(", ")}
 											</p>
 										) : null}
@@ -226,6 +214,12 @@ const RegisterForm: FC = () => {
 							{/* Email Field */}
 							<form.Field
 								name="email"
+								validators={{
+									onChange: ({ value }) => {
+										const result = registerSchema.shape.email.safeParse(value);
+										return result.success ? undefined : result.error.issues[0].message;
+									},
+								}}
 								children={(field) => (
 									<motion.div
 										initial={{ opacity: 0, x: -20 }}
@@ -257,7 +251,7 @@ const RegisterForm: FC = () => {
 											/>
 										</div>
 										{field.state.meta.errors ? (
-											<p className="text-sm text-red-500">
+											<p className="text-sm text-red-500 italic">
 												{field.state.meta.errors.join(", ")}
 											</p>
 										) : null}
@@ -268,6 +262,12 @@ const RegisterForm: FC = () => {
 							{/* Password Field */}
 							<form.Field
 								name="password"
+								validators={{
+									onChange: ({ value }) => {
+										const result = registerSchema.shape.password.safeParse(value);
+										return result.success ? undefined : result.error.issues[0].message;
+									},
+								}}
 								children={(field) => (
 									<motion.div
 										initial={{ opacity: 0, x: -20 }}
@@ -299,7 +299,7 @@ const RegisterForm: FC = () => {
 											/>
 										</div>
 										{field.state.meta.errors ? (
-											<p className="text-sm text-red-500">
+											<p className="text-sm text-red-500 italic">
 												{field.state.meta.errors.join(", ")}
 											</p>
 										) : null}
@@ -310,6 +310,14 @@ const RegisterForm: FC = () => {
 							{/* Confirm Password Field */}
 							<form.Field
 								name="confirmPassword"
+								validators={{
+									onBlur: ({ value, fieldApi }) => {
+										if (value !== fieldApi.form.getFieldValue("password")) {
+											return "Passwords don't match";
+										}
+										return undefined;
+									},
+								}}
 								children={(field) => (
 									<motion.div
 										initial={{ opacity: 0, x: -20 }}
@@ -341,7 +349,7 @@ const RegisterForm: FC = () => {
 											/>
 										</div>
 										{field.state.meta.errors ? (
-											<p className="text-sm text-red-500">
+											<p className="text-sm text-red-500 italic">
 												{field.state.meta.errors.join(", ")}
 											</p>
 										) : null}
