@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Mail, Lock, LogIn, BookOpen, Sparkles } from "lucide-react";
@@ -12,53 +12,55 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { useForm } from "@tanstack/react-form";
+import { useMutation } from "@tanstack/react-query";
+import { loginSchema, type LoginInput } from "@/api/authApi";
+import { loginUser } from "@/functions/auth/authFunctions";
+import { toast } from "sonner";
 
 const LoginForm: FC = () => {
 	const router = useRouter();
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [error, setError] = useState("");
-	const [isLoading, setIsLoading] = useState(false);
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setError("");
-		setIsLoading(true);
+	// TanStack Query mutation for login
+	const loginMutation = useMutation({
+		mutationFn: (data: LoginInput) => loginUser({ data }),
+		onSuccess: (response) => {
+			if (response.success) {
+				toast.success("Login successful!", {
+					description: "Welcome back!",
+				});
 
-		try {
-			// TODO: Implementovať skutočné prihlásenie
-			console.log("Prihlasovanie s:", { email, password });
-
-			// Simulácia API volania
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-
-			// Skontrolovať demo účty
-			const isDemoAccount =
-				email === "admin@library.sk" || email === "user@library.sk";
-
-			if (isDemoAccount || (email && password)) {
-				// Úspešné prihlásenie
-				// TODO: Uložiť auth token do localStorage/contextu
-				localStorage.setItem("isAuthenticated", "true");
-				localStorage.setItem("userEmail", email);
-
-				router.navigate({ to: "/" });
+				// Redirection is usually handled by the router/auth context
+				// but for now we follow the existing pattern
+				router.navigate({ to: "/profile" });
 			} else {
-				throw new Error("Nesprávny email alebo heslo");
+				toast.error("Login failed", {
+					description: response.message || "Invalid credentials",
+				});
 			}
-		} catch (err: any) {
-			setError(err.message || "Prihlásenie zlyhalo");
-		} finally {
-			setIsLoading(false);
-		}
-	};
+		},
+		onError: (error: Error) => {
+			toast.error("Error", {
+				description: error.message,
+			});
+		},
+	});
 
-	const handleRegister = () => {
-		router.navigate({ to: "/register" });
-	};
+	const form = useForm({
+		defaultValues: {
+			email: "",
+			password: "",
+			rememberMe: false,
+		},
+		onSubmit: async ({ value }) => {
+			loginMutation.mutate(value);
+		},
+	});
+
+	const isLoading = loginMutation.isPending;
 
 	return (
-		<div className="w-full max-w-md mx-auto">
+		<div className="w-full max-w-md mx-auto mt-5">
 			{/* Decorative elements */}
 			<motion.div
 				initial={{ opacity: 0, scale: 0.5 }}
@@ -87,7 +89,7 @@ const LoginForm: FC = () => {
 							transition={{ delay: 0.2 }}
 						>
 							<CardTitle className="text-3xl font-bold text-center bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-								Vitajte späť
+								Welcome back
 							</CardTitle>
 						</motion.div>
 						<motion.div
@@ -96,14 +98,20 @@ const LoginForm: FC = () => {
 							transition={{ delay: 0.3 }}
 						>
 							<CardDescription className="text-center text-base">
-								Prihláste sa do svojho účtu a pokračujte v čítaní
+								Log in to your account and continue reading
 							</CardDescription>
 						</motion.div>
 					</CardHeader>
 
-					<form onSubmit={handleSubmit}>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							form.handleSubmit();
+						}}
+					>
 						<CardContent className="space-y-6">
-							{error && (
+							{loginMutation.error && (
 								<motion.div
 									initial={{ opacity: 0, scale: 0.95, y: -10 }}
 									animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -111,66 +119,102 @@ const LoginForm: FC = () => {
 								>
 									<div className="absolute top-0 left-0 w-1 h-full bg-linear-to-b from-red-500 to-pink-500"></div>
 									<p className="text-sm text-red-700 dark:text-red-300 ml-3">
-										{error}
+										{loginMutation.error.message}
 									</p>
 								</motion.div>
 							)}
 
-							<motion.div
-								initial={{ opacity: 0, x: -20 }}
-								animate={{ opacity: 1, x: 0 }}
-								transition={{ delay: 0.4 }}
-								className="space-y-2"
-							>
-								<label
-									htmlFor="email"
-									className="text-sm font-semibold flex items-center gap-2"
-								>
-									<Sparkles className="h-3 w-3 text-blue-600" />
-									Email
-								</label>
-								<div className="relative group">
-									<div className="absolute inset-0 bg-linear-to-r from-blue-600 to-purple-600 rounded-lg opacity-0 group-hover:opacity-10 transition-opacity blur"></div>
-									<Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground transition-colors group-hover:text-blue-600" />
-									<Input
-										id="email"
-										type="email"
-										placeholder="vas@email.sk"
-										value={email}
-										onChange={(e) => setEmail(e.target.value)}
-										className="pl-11 h-12 border-2 transition-all focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20"
-										required
-									/>
-								</div>
-							</motion.div>
+							<form.Field
+								name="email"
+								validators={{
+									onChange: ({ value }) => {
+										const result = loginSchema.shape.email.safeParse(value);
+										return result.success ? undefined : result.error.issues[0].message;
+									},
+								}}
+								children={(field) => (
+									<motion.div
+										initial={{ opacity: 0, x: -20 }}
+										animate={{ opacity: 1, x: 0 }}
+										transition={{ delay: 0.4 }}
+										className="space-y-2"
+									>
+										<label
+											htmlFor={field.name}
+											className="text-sm font-semibold flex items-center gap-2"
+										>
+											<Sparkles className="h-3 w-3 text-blue-600" />
+											Email
+										</label>
+										<div className="relative group">
+											<div className="absolute inset-0 bg-linear-to-r from-blue-600 to-purple-600 rounded-lg opacity-0 group-hover:opacity-10 transition-opacity blur"></div>
+											<Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground transition-colors group-hover:text-blue-600" />
+											<Input
+												id={field.name}
+												name={field.name}
+												type="email"
+												placeholder="your@email.com"
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+												className={`pl-11 h-12 border-2 transition-all focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 ${field.state.meta.errors.length ? "border-red-500" : ""}`}
+												required
+											/>
+										</div>
+										{field.state.meta.errors ? (
+											<p className="text-sm text-red-500 italic">
+												{field.state.meta.errors.join(", ")}
+											</p>
+										) : null}
+									</motion.div>
+								)}
+							/>
 
-							<motion.div
-								initial={{ opacity: 0, x: -20 }}
-								animate={{ opacity: 1, x: 0 }}
-								transition={{ delay: 0.5 }}
-								className="space-y-2"
-							>
-								<label
-									htmlFor="password"
-									className="text-sm font-semibold flex items-center gap-2"
-								>
-									<Sparkles className="h-3 w-3 text-purple-600" />
-									Heslo
-								</label>
-								<div className="relative group">
-									<div className="absolute inset-0 bg-linear-to-r from-blue-600 to-purple-600 rounded-lg opacity-0 group-hover:opacity-10 transition-opacity blur"></div>
-									<Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground transition-colors group-hover:text-purple-600" />
-									<Input
-										id="password"
-										type="password"
-										placeholder="••••••••"
-										value={password}
-										onChange={(e) => setPassword(e.target.value)}
-										className="pl-11 h-12 border-2 transition-all focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20"
-										required
-									/>
-								</div>
-							</motion.div>
+							<form.Field
+								name="password"
+								validators={{
+									onChange: ({ value }) => {
+										const result = loginSchema.shape.password.safeParse(value);
+										return result.success ? undefined : result.error.issues[0].message;
+									},
+								}}
+								children={(field) => (
+									<motion.div
+										initial={{ opacity: 0, x: -20 }}
+										animate={{ opacity: 1, x: 0 }}
+										transition={{ delay: 0.5 }}
+										className="space-y-2"
+									>
+										<label
+											htmlFor={field.name}
+											className="text-sm font-semibold flex items-center gap-2"
+										>
+											<Sparkles className="h-3 w-3 text-purple-600" />
+											Password
+										</label>
+										<div className="relative group">
+											<div className="absolute inset-0 bg-linear-to-r from-blue-600 to-purple-600 rounded-lg opacity-0 group-hover:opacity-10 transition-opacity blur"></div>
+											<Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground transition-colors group-hover:text-purple-600" />
+											<Input
+												id={field.name}
+												name={field.name}
+												type="password"
+												placeholder="••••••••"
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+												className={`pl-11 h-12 border-2 transition-all focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 ${field.state.meta.errors.length ? "border-red-500" : ""}`}
+												required
+											/>
+										</div>
+										{field.state.meta.errors ? (
+											<p className="text-sm text-red-500 italic">
+												{field.state.meta.errors.join(", ")}
+											</p>
+										) : null}
+									</motion.div>
+								)}
+							/>
 
 							<motion.div
 								initial={{ opacity: 0 }}
@@ -179,7 +223,7 @@ const LoginForm: FC = () => {
 								className="rounded-lg bg-linear-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 p-4 border border-blue-100 dark:border-blue-900"
 							>
 								<p className="text-sm font-semibold mb-2 text-blue-900 dark:text-blue-100">
-									Demo účty:
+									Demo accounts:
 								</p>
 								<ul className="space-y-1.5 text-sm text-blue-800 dark:text-blue-200">
 									<li className="flex items-center gap-2">
@@ -188,11 +232,11 @@ const LoginForm: FC = () => {
 									</li>
 									<li className="flex items-center gap-2">
 										<div className="h-1.5 w-1.5 rounded-full bg-purple-600"></div>
-										<span className="font-medium">Používateľ:</span>{" "}
+										<span className="font-medium">User:</span>{" "}
 										user@library.sk
 									</li>
 									<li className="text-xs mt-2 text-blue-600 dark:text-blue-300">
-										💡 Heslo: ľubovoľné
+										💡 Password: any
 									</li>
 								</ul>
 							</motion.div>
@@ -205,23 +249,28 @@ const LoginForm: FC = () => {
 								transition={{ delay: 0.7 }}
 								className="w-full"
 							>
-								<Button
-									type="submit"
-									className="w-full h-12 text-base font-semibold bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
-									disabled={isLoading}
-								>
-									{isLoading ? (
-										<div className="flex items-center gap-2">
-											<div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-											Prihlasovanie...
-										</div>
-									) : (
-										<div className="flex items-center gap-2">
-											<LogIn className="h-5 w-5" />
-											Prihlásiť sa
-										</div>
+								<form.Subscribe
+									selector={(state) => [state.canSubmit, state.isSubmitting]}
+									children={([canSubmit, isSubmitting]) => (
+										<Button
+											type="submit"
+											className="w-full h-12 text-base font-semibold bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+											disabled={!canSubmit || isSubmitting || isLoading}
+										>
+											{isLoading ? (
+												<div className="flex items-center gap-2">
+													<div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+													Logging in...
+												</div>
+											) : (
+												<div className="flex items-center gap-2">
+													<LogIn className="h-5 w-5" />
+													Log in
+												</div>
+											)}
+										</Button>
 									)}
-								</Button>
+								/>
 							</motion.div>
 
 							<motion.div
@@ -230,13 +279,13 @@ const LoginForm: FC = () => {
 								transition={{ delay: 0.8 }}
 								className="text-sm text-center text-muted-foreground"
 							>
-								Nemáte účet?{" "}
+								Don't have an account?{" "}
 								<button
 									type="button"
-									onClick={handleRegister}
+									onClick={() => router.navigate({ to: "/register" })}
 									className="font-semibold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-purple-700 transition-all"
 								>
-									Zaregistrujte sa
+									Sign up
 								</button>
 							</motion.div>
 						</CardFooter>
@@ -248,3 +297,4 @@ const LoginForm: FC = () => {
 };
 
 export default LoginForm;
+
