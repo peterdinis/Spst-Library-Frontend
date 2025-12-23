@@ -58,7 +58,7 @@ const LoginForm: FC = () => {
 	};
 
 	return (
-		<div className="w-full max-w-md mx-auto">
+		<div className="w-full max-w-md mx-auto mt-5">
 			{/* Decorative elements */}
 			<motion.div
 				initial={{ opacity: 0, scale: 0.5 }}
