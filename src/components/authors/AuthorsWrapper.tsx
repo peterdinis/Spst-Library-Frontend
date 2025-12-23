@@ -25,7 +25,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Search, User, BookOpen, MapPin, X, Loader2, RefreshCw } from "lucide-react";
+import { Search, BookOpen, MapPin, X, Loader2, RefreshCw } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { authorsApi } from "@/api/authorsApi";
@@ -70,9 +70,9 @@ export function AllAuthorsWrapper() {
 		isError,
 		error,
 		refetch,
-		isRefetching
+		isRefetching,
 	} = useQuery({
-		queryKey: ['authors'],
+		queryKey: ["authors"],
 		queryFn: async () => {
 			const response = await authorsApi.getAllAuthors();
 			return response;
@@ -85,14 +85,14 @@ export function AllAuthorsWrapper() {
 	// Transformácia dát
 	const authors: TransformedAuthor[] = useMemo(() => {
 		if (!authorsData) return [];
-		
+
 		return authorsData.map((author: Author) => ({
 			...author,
 			id: author.authorId.toString(),
 			name: `${author.firstName} ${author.lastName}`,
 			fullName: `${author.firstName} ${author.lastName}`,
 			nationality: author.country,
-			photoUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(author.firstName + ' ' + author.lastName)}&background=random&size=128`
+			photoUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(author.firstName + " " + author.lastName)}&background=random&size=128`,
 		}));
 	}, [authorsData]);
 
@@ -111,7 +111,8 @@ export function AllAuthorsWrapper() {
 				searchQuery === "" ||
 				author.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
 				author.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				(author.biography && author.biography.toLowerCase().includes(searchQuery.toLowerCase()));
+				(author.biography &&
+					author.biography.toLowerCase().includes(searchQuery.toLowerCase()));
 
 			const matchesNationality =
 				nationalityFilter === "all" || author.country === nationalityFilter;
@@ -169,11 +170,13 @@ export function AllAuthorsWrapper() {
 
 	if (isLoading) {
 		return (
-			<section className="py-16 bg-gradient-to-b from-background to-muted/30">
+			<section className="py-16 bg-linear-to-b from-background to-muted/30">
 				<div className="container mx-auto px-4">
 					<div className="flex flex-col items-center justify-center py-20">
 						<Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-						<h3 className="text-xl font-semibold mb-2">Načítavanie autorov...</h3>
+						<h3 className="text-xl font-semibold mb-2">
+							Načítavanie autorov...
+						</h3>
 						<p className="text-muted-foreground">Prosím čakajte</p>
 					</div>
 				</div>
@@ -182,16 +185,19 @@ export function AllAuthorsWrapper() {
 	}
 
 	if (isError) {
-		const errorMessage = error instanceof Error ? error.message : "Nastala neznáma chyba";
+		const errorMessage =
+			error instanceof Error ? error.message : "Nastala neznáma chyba";
 		return (
-			<section className="py-16 bg-gradient-to-b from-background to-muted/30">
+			<section className="py-16 bg-linear-to-b from-background to-muted/30">
 				<div className="container mx-auto px-4">
 					<div className="text-center py-12">
 						<div className="mx-auto max-w-md">
 							<div className="rounded-full bg-destructive/10 p-6 w-24 h-24 flex items-center justify-center mx-auto mb-6">
 								<X className="h-12 w-12 text-destructive" />
 							</div>
-							<h3 className="text-xl font-semibold mb-2">Chyba pri načítavaní</h3>
+							<h3 className="text-xl font-semibold mb-2">
+								Chyba pri načítavaní
+							</h3>
 							<p className="text-muted-foreground mb-6">{errorMessage}</p>
 							<Button onClick={handleRefresh}>
 								<RefreshCw className="mr-2 h-4 w-4" />
@@ -205,7 +211,7 @@ export function AllAuthorsWrapper() {
 	}
 
 	return (
-		<section className="py-16 bg-gradient-to-b from-background to-muted/30">
+		<section className="py-16 bg-linear-to-b from-background to-muted/30">
 			<div className="container mx-auto px-4">
 				{/* Header */}
 				<motion.div
@@ -229,7 +235,9 @@ export function AllAuthorsWrapper() {
 								disabled={isRefetching}
 								className="relative"
 							>
-								<RefreshCw className={`h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`} />
+								<RefreshCw
+									className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
+								/>
 								{isRefetching && (
 									<span className="absolute -top-1 -right-1 h-2 w-2">
 										<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -371,7 +379,7 @@ export function AllAuthorsWrapper() {
 														onError={(e) => {
 															const target = e.target as HTMLImageElement;
 															target.onerror = null;
-															target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(author.firstName + ' ' + author.lastName)}&background=6b7280&color=fff&size=128`;
+															target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(author.firstName + " " + author.lastName)}&background=6b7280&color=fff&size=128`;
 														}}
 													/>
 													<div className="flex-1">
@@ -549,13 +557,16 @@ export function AllAuthorsWrapper() {
 						</div>
 						<div className="text-center p-4 rounded-lg border bg-card">
 							<div className="text-2xl font-bold text-green-600">
-								{authors.reduce((sum, author) => sum + (author.booksCount || 0), 0)}
+								{authors.reduce(
+									(sum, author) => sum + (author.booksCount || 0),
+									0,
+								)}
 							</div>
 							<div className="text-sm text-muted-foreground">Celkom kníh</div>
 						</div>
 						<div className="text-center p-4 rounded-lg border bg-card">
 							<div className="text-2xl font-bold text-purple-600">
-								{new Set(authors.map(a => a.country)).size}
+								{new Set(authors.map((a) => a.country)).size}
 							</div>
 							<div className="text-sm text-muted-foreground">Krajín</div>
 						</div>

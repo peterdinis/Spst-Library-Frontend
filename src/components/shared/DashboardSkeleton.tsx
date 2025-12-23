@@ -6,7 +6,7 @@ const DashboardSkeleton = () => {
 			initial={{ opacity: 0, y: 20 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.4 }}
-			className="rounded-xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 overflow-hidden relative"
+			className="rounded-xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm bg-linear-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 overflow-hidden relative"
 		>
 			{/* Bouncing balls background */}
 			<div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -21,7 +21,7 @@ const DashboardSkeleton = () => {
 						repeat: Infinity,
 						ease: "easeInOut",
 					}}
-					className="absolute w-64 h-64 rounded-full bg-gradient-to-br from-blue-100/20 to-purple-100/20 dark:from-blue-900/10 dark:to-purple-900/10 blur-xl"
+					className="absolute w-64 h-64 rounded-full bg-linear-to-br from-blue-100/20 to-purple-100/20 dark:from-blue-900/10 dark:to-purple-900/10 blur-xl"
 				/>
 
 				{/* Small bouncing balls */}
@@ -38,7 +38,7 @@ const DashboardSkeleton = () => {
 							ease: "easeInOut",
 							delay: i * 0.2,
 						}}
-						className={`absolute w-${8 + i * 2} h-${8 + i * 2} rounded-full bg-gradient-to-br ${
+						className={`absolute w-${8 + i * 2} h-${8 + i * 2} rounded-full bg-linear-to-br ${
 							i % 3 === 0
 								? "from-blue-100/30 to-cyan-100/30 dark:from-blue-900/20 dark:to-cyan-900/20"
 								: i % 3 === 1
@@ -58,7 +58,7 @@ const DashboardSkeleton = () => {
 				<div className="flex space-x-4">
 					{/* Avatar skeleton with bouncing ball inside */}
 					<div className="relative">
-						<div className="h-32 w-24 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 overflow-hidden">
+						<div className="h-32 w-24 rounded-xl bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 overflow-hidden">
 							{/* Bouncing ball inside avatar */}
 							<motion.div
 								animate={{
@@ -70,7 +70,7 @@ const DashboardSkeleton = () => {
 									repeat: Infinity,
 									ease: "easeInOut",
 								}}
-								className="absolute w-12 h-12 rounded-full bg-gradient-to-br from-blue-300 to-purple-300 dark:from-blue-600 dark:to-purple-600 blur-sm"
+								className="absolute w-12 h-12 rounded-full bg-linear-to-br from-blue-300 to-purple-300 dark:from-blue-600 dark:to-purple-600 blur-sm"
 							/>
 							<motion.div
 								animate={{
@@ -83,7 +83,7 @@ const DashboardSkeleton = () => {
 									ease: "easeInOut",
 									delay: 1,
 								}}
-								className="absolute w-8 h-8 rounded-full bg-gradient-to-br from-pink-300 to-orange-300 dark:from-pink-600 dark:to-orange-600 blur-sm"
+								className="absolute w-8 h-8 rounded-full bg-linear-to-br from-pink-300 to-orange-300 dark:from-pink-600 dark:to-orange-600 blur-sm"
 								style={{ right: 10, bottom: 10 }}
 							/>
 						</div>
@@ -115,7 +115,7 @@ const DashboardSkeleton = () => {
 										repeat: Infinity,
 										delay: i * 0.3,
 									}}
-									className="absolute w-3 h-3 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 dark:from-blue-500 dark:to-cyan-500"
+									className="absolute w-3 h-3 rounded-full bg-linear-to-br from-blue-400 to-cyan-400 dark:from-blue-500 dark:to-cyan-500"
 									style={{
 										transform: `translateY(-48px)`,
 									}}
@@ -128,7 +128,7 @@ const DashboardSkeleton = () => {
 					<div className="flex-1 space-y-4">
 						{/* Title line with bouncing dot */}
 						<div className="flex items-center space-x-2">
-							<div className="h-6 w-3/4 rounded-md bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 overflow-hidden">
+							<div className="h-6 w-3/4 rounded-md bg-linear-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 overflow-hidden">
 								<motion.div
 									animate={{
 										x: ["-100%", "100%"],
@@ -138,7 +138,7 @@ const DashboardSkeleton = () => {
 										repeat: Infinity,
 										ease: "easeInOut",
 									}}
-									className="w-1/2 h-full bg-gradient-to-r from-transparent via-white/50 to-transparent dark:via-gray-300/20"
+									className="w-1/2 h-full bg-linear-to-r from-transparent via-white/50 to-transparent dark:via-gray-300/20"
 								/>
 							</div>
 							<motion.div
@@ -149,7 +149,7 @@ const DashboardSkeleton = () => {
 									duration: 1.2,
 									repeat: Infinity,
 								}}
-								className="w-2 h-2 rounded-full bg-gradient-to-br from-blue-400 to-purple-400"
+								className="w-2 h-2 rounded-full bg-linear-to-br from-blue-400 to-purple-400"
 							/>
 						</div>
 
@@ -166,9 +166,9 @@ const DashboardSkeleton = () => {
 										repeat: Infinity,
 										delay: 0.1,
 									}}
-									className="w-2 h-2 rounded-full bg-gradient-to-br from-green-400 to-teal-400"
+									className="w-2 h-2 rounded-full bg-linear-to-br from-green-400 to-teal-400"
 								/>
-								<div className="h-4 w-1/2 rounded-md bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700" />
+								<div className="h-4 w-1/2 rounded-md bg-linear-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700" />
 							</div>
 
 							{/* Line 2 */}
@@ -182,9 +182,9 @@ const DashboardSkeleton = () => {
 										repeat: Infinity,
 										delay: 0.2,
 									}}
-									className="w-2 h-2 rounded-full bg-gradient-to-br from-orange-400 to-yellow-400"
+									className="w-2 h-2 rounded-full bg-linear-to-br from-orange-400 to-yellow-400"
 								/>
-								<div className="h-4 w-1/3 rounded-md bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700" />
+								<div className="h-4 w-1/3 rounded-md bg-linear-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700" />
 							</div>
 						</div>
 
@@ -205,8 +205,8 @@ const DashboardSkeleton = () => {
 									}}
 									className="flex items-center space-x-1"
 								>
-									<div className="w-3 h-3 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400" />
-									<div className="h-4 w-16 rounded-md bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700" />
+									<div className="w-3 h-3 rounded-full bg-linear-to-br from-blue-400 to-cyan-400" />
+									<div className="h-4 w-16 rounded-md bg-linear-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700" />
 								</motion.div>
 							))}
 						</div>
@@ -222,7 +222,7 @@ const DashboardSkeleton = () => {
 				>
 					{/* Stats with orbiting balls */}
 					<div className="relative">
-						<div className="h-4 w-24 rounded-md bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 mb-2" />
+						<div className="h-4 w-24 rounded-md bg-linear-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 mb-2" />
 
 						{/* Orbiting stats dots */}
 						<div className="flex space-x-1">
@@ -237,7 +237,7 @@ const DashboardSkeleton = () => {
 										repeat: Infinity,
 										delay: i * 0.1,
 									}}
-									className="w-1.5 h-1.5 rounded-full bg-gradient-to-br from-blue-400 to-purple-400"
+									className="w-1.5 h-1.5 rounded-full bg-linear-to-br from-blue-400 to-purple-400"
 								/>
 							))}
 						</div>
@@ -252,13 +252,13 @@ const DashboardSkeleton = () => {
 								repeat: Infinity,
 								ease: "easeInOut",
 							}}
-							className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-gradient-to-br from-green-400 to-teal-400"
+							className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-linear-to-br from-green-400 to-teal-400"
 						/>
 					</div>
 
 					{/* Button with bouncing ball inside */}
 					<motion.div whileHover={{ scale: 1.05 }} className="relative">
-						<div className="h-8 w-20 rounded-md bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 overflow-hidden">
+						<div className="h-8 w-20 rounded-md bg-linear-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 overflow-hidden">
 							{/* Bouncing button ball */}
 							<motion.div
 								animate={{
@@ -269,7 +269,7 @@ const DashboardSkeleton = () => {
 									repeat: Infinity,
 									ease: "easeInOut",
 								}}
-								className="absolute top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-400"
+								className="absolute top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-linear-to-br from-blue-400 to-purple-400"
 							/>
 						</div>
 
@@ -297,7 +297,7 @@ const DashboardSkeleton = () => {
 										repeat: Infinity,
 										delay: i * 0.2,
 									}}
-									className="w-1.5 h-1.5 rounded-full bg-gradient-to-br from-pink-400 to-orange-400"
+									className="w-1.5 h-1.5 rounded-full bg-linear-to-br from-pink-400 to-orange-400"
 									style={{
 										transform: `translateY(-18px)`,
 									}}
@@ -308,7 +308,7 @@ const DashboardSkeleton = () => {
 				</motion.div>
 
 				{/* Progress bar with bouncing ball */}
-				<div className="relative h-2 rounded-full bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 overflow-hidden mt-4">
+				<div className="relative h-2 rounded-full bg-linear-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 overflow-hidden mt-4">
 					{/* Bouncing progress ball */}
 					<motion.div
 						animate={{
@@ -319,7 +319,7 @@ const DashboardSkeleton = () => {
 							repeat: Infinity,
 							ease: "easeInOut",
 						}}
-						className="absolute w-4 h-4 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 -top-1"
+						className="absolute w-4 h-4 rounded-full bg-linear-to-br from-blue-400 to-purple-400 -top-1"
 					/>
 
 					{/* Trail dots */}
@@ -335,7 +335,7 @@ const DashboardSkeleton = () => {
 								repeat: Infinity,
 								delay: i * 0.2,
 							}}
-							className="absolute w-1 h-1 rounded-full bg-gradient-to-br from-blue-300 to-purple-300"
+							className="absolute w-1 h-1 rounded-full bg-linear-to-br from-blue-300 to-purple-300"
 							style={{
 								left: `${25 * (i + 1)}%`,
 								top: "50%",

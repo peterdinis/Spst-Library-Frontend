@@ -19,33 +19,16 @@ import {
 	Filter,
 	X,
 	Loader2,
-	AlertCircle,
+	RefreshCw,
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getAllBooks } from "../../functions/books/getAllBooks";
 
-// Typ pre knihu z API
-interface Book {
-	id: number | string;
-	title: string;
-	author?: string;
-	description?: string;
-	year?: number;
-	category?: string;
-	isAvailable?: boolean;
-	// Ďalšie polia podľa vášho API
-	publisher?: string;
-	pages?: number;
-	language?: string;
-	photoPath?: string;
-	addedToLibrary?: string;
-}
-
 const AllBooksWrapper: FC = () => {
 	const navigate = useNavigate();
 	const [searchTerm, setSearchTerm] = useState("");
-	const [currentPage, setCurrentPage] = useState(1);
+	const [, setCurrentPage] = useState(1);
 	const [showFilters, setShowFilters] = useState(false);
 	const [selectedCategory, setSelectedCategory] = useState<string>("all");
 	const [availability, setAvailability] = useState<string>("all");
@@ -57,6 +40,7 @@ const AllBooksWrapper: FC = () => {
 		isError,
 		error,
 		refetch,
+		isRefetching,
 	} = useQuery({
 		queryKey: ["books"],
 		queryFn: async () => {
@@ -79,6 +63,9 @@ const AllBooksWrapper: FC = () => {
 					}))
 				: [];
 		},
+		retry: 3,
+		retryDelay: 1000,
+		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
 
 	// Memoizované filtrovanie pre lepšiu výkonnosť
@@ -143,6 +130,10 @@ const AllBooksWrapper: FC = () => {
 		}
 	}, [selectedCategory, availability]);
 
+	const handleRefresh = () => {
+		refetch();
+	};
+
 	const containerVariants = {
 		hidden: { opacity: 0 },
 		visible: {
@@ -164,39 +155,42 @@ const AllBooksWrapper: FC = () => {
 		},
 	};
 
-	// Loading state
+	// Loading state - Rovnaký ako pri spisovateľoch
 	if (isLoading) {
 		return (
 			<section className="py-16 bg-linear-to-b from-background to-muted/30">
-				<div className="container mx-auto px-4 text-center">
-					<div className="flex flex-col items-center justify-center min-h-100">
+				<div className="container mx-auto px-4">
+					<div className="flex flex-col items-center justify-center py-20">
 						<Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-						<h3 className="text-xl font-semibold mb-2">Načítavam knihy...</h3>
-						<p className="text-muted-foreground">
-							Prosím počkajte, kým sa načítajú údaje.
-						</p>
+						<h3 className="text-xl font-semibold mb-2">Načítavanie kníh...</h3>
+						<p className="text-muted-foreground">Prosím čakajte</p>
 					</div>
 				</div>
 			</section>
 		);
 	}
 
-	// Error state
+	// Error state - Rovnaký ako pri spisovateľoch
 	if (isError) {
+		const errorMessage =
+			error instanceof Error ? error.message : "Nastala neznáma chyba";
 		return (
 			<section className="py-16 bg-linear-to-b from-background to-muted/30">
-				<div className="container mx-auto px-4 text-center">
-					<div className="flex flex-col items-center justify-center min-h-100">
-						<AlertCircle className="h-12 w-12 text-destructive mb-4" />
-						<h3 className="text-xl font-semibold mb-2">
-							Chyba pri načítaní kníh
-						</h3>
-						<p className="text-muted-foreground mb-4">
-							{error instanceof Error ? error.message : "Neznáma chyba"}
-						</p>
-						<Button variant="outline" onClick={() => refetch()}>
-							Skúsiť znova
-						</Button>
+				<div className="container mx-auto px-4">
+					<div className="text-center py-12">
+						<div className="mx-auto max-w-md">
+							<div className="rounded-full bg-destructive/10 p-6 w-24 h-24 flex items-center justify-center mx-auto mb-6">
+								<X className="h-12 w-12 text-destructive" />
+							</div>
+							<h3 className="text-xl font-semibold mb-2">
+								Chyba pri načítavaní
+							</h3>
+							<p className="text-muted-foreground mb-6">{errorMessage}</p>
+							<Button onClick={handleRefresh}>
+								<RefreshCw className="mr-2 h-4 w-4" />
+								Skúsiť znova
+							</Button>
+						</div>
 					</div>
 				</div>
 			</section>
@@ -206,44 +200,152 @@ const AllBooksWrapper: FC = () => {
 	// Empty state when no books
 	if (books.length === 0 && !isLoading) {
 		return (
-			<section className="py-16 bg-gradient-to-b from-background to-muted/30">
-				<div className="container mx-auto px-4 text-center">
-					<div className="flex flex-col items-center justify-center min-h-[400px]">
-						<BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-						<h3 className="text-xl font-semibold mb-2">Žiadne knihy</h3>
-						<p className="text-muted-foreground">
-							V knižnici sa momentálne nenachádzajú žiadne knihy.
+			<section className="py-16 bg-linear-to-b from-background to-muted/30">
+				<div className="container mx-auto px-4">
+					{/* Header - Rovnaký štýl ako pri spisovateľoch */}
+					<motion.div
+						initial={{ opacity: 0, y: 30 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.6 }}
+						className="text-center mb-12"
+					>
+						<div className="flex justify-between items-center mb-4">
+							<div className="flex-1"></div>
+							<div className="flex-1 text-center">
+								<h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+									Knižný Katalóg
+								</h1>
+							</div>
+							<div className="flex-1 flex justify-end">
+								<Button
+									variant="outline"
+									size="icon"
+									onClick={handleRefresh}
+									disabled={isRefetching}
+									className="relative"
+								>
+									<RefreshCw
+										className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
+									/>
+									{isRefetching && (
+										<span className="absolute -top-1 -right-1 h-2 w-2">
+											<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+											<span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+										</span>
+									)}
+								</Button>
+							</div>
+						</div>
+						<p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+							Preskúmajte našu rozsiahlu zbierku kníh. Vyhľadávajte podľa názvu,
+							autora alebo kategórie.
 						</p>
-					</div>
+					</motion.div>
+
+					{/* Empty state - Rovnaký štýl ako pri spisovateľoch */}
+					<motion.div
+						initial={{ opacity: 0, scale: 0.9 }}
+						animate={{ opacity: 1, scale: 1 }}
+						className="text-center py-12"
+					>
+						<div className="mx-auto max-w-md">
+							<div className="rounded-full bg-muted p-6 w-24 h-24 flex items-center justify-center mx-auto mb-6">
+								<BookOpen className="h-12 w-12 text-muted-foreground" />
+							</div>
+							<h3 className="text-xl font-semibold mb-2">Žiadne knihy</h3>
+							<p className="text-muted-foreground mb-6">
+								V knižnici sa momentálne nenachádzajú žiadne knihy.
+							</p>
+							<Button
+								variant="outline"
+								onClick={handleRefresh}
+								disabled={isRefetching}
+							>
+								<RefreshCw
+									className={`mr-2 h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
+								/>
+								Skúsiť znova
+							</Button>
+						</div>
+					</motion.div>
+
+					{/* Stats - Rovnaký štýl ako pri spisovateľoch */}
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.6, delay: 0.4 }}
+						className="text-center mt-12"
+					>
+						<div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-xl mx-auto">
+							<div className="text-center p-4 rounded-lg border bg-card">
+								<div className="text-2xl font-bold text-primary">0</div>
+								<div className="text-sm text-muted-foreground">Celkom kníh</div>
+							</div>
+							<div className="text-center p-4 rounded-lg border bg-card">
+								<div className="text-2xl font-bold text-green-600">0</div>
+								<div className="text-sm text-muted-foreground">
+									Dostupných kníh
+								</div>
+							</div>
+							<div className="text-center p-4 rounded-lg border bg-card">
+								<div className="text-2xl font-bold text-purple-600">0</div>
+								<div className="text-sm text-muted-foreground">Kategórií</div>
+							</div>
+						</div>
+					</motion.div>
 				</div>
 			</section>
 		);
 	}
 
 	return (
-		<section className="py-16 bg-gradient-to-b from-background to-muted/30">
+		<section className="py-16 bg-linear-to-b from-background to-muted/30">
 			<div className="container mx-auto px-4">
-				{/* Header */}
+				{/* Header - Rovnaký štýl ako pri spisovateľoch */}
 				<motion.div
 					initial={{ opacity: 0, y: 30 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.6 }}
 					className="text-center mb-12"
 				>
-					<h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-						Knižný Katalóg
-					</h1>
+					<div className="flex justify-between items-center mb-4">
+						<div className="flex-1"></div>
+						<div className="flex-1 text-center">
+							<h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+								Knižný Katalóg
+							</h1>
+						</div>
+						<div className="flex-1 flex justify-end">
+							<Button
+								variant="outline"
+								size="icon"
+								onClick={handleRefresh}
+								disabled={isRefetching}
+								className="relative"
+							>
+								<RefreshCw
+									className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
+								/>
+								{isRefetching && (
+									<span className="absolute -top-1 -right-1 h-2 w-2">
+										<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+										<span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+									</span>
+								)}
+							</Button>
+						</div>
+					</div>
 					<p className="text-lg text-muted-foreground max-w-2xl mx-auto">
 						Preskúmajte našu rozsiahlu zbierku kníh. Vyhľadávajte podľa názvu,
 						autora alebo kategórie.
 					</p>
 				</motion.div>
 
-				{/* Search and Filters */}
+				{/* Search and Filter Controls */}
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.6, delay: 0.2 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5, delay: 0.2 }}
 					className="mb-8"
 				>
 					<div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
@@ -255,12 +357,14 @@ const AllBooksWrapper: FC = () => {
 								value={searchTerm}
 								onChange={handleSearch}
 								className="pl-10 pr-4 py-2 w-full"
+								disabled={isRefetching}
 							/>
 							{searchTerm && (
 								<button
 									type="button"
 									onClick={() => setSearchTerm("")}
 									className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+									disabled={isRefetching}
 								>
 									<X className="h-4 w-4" />
 								</button>
@@ -272,6 +376,7 @@ const AllBooksWrapper: FC = () => {
 									variant="outline"
 									onClick={clearFilters}
 									className="flex items-center gap-2"
+									disabled={isRefetching}
 								>
 									<X className="h-4 w-4" />
 									Vymazať všetko
@@ -281,11 +386,34 @@ const AllBooksWrapper: FC = () => {
 								variant="outline"
 								onClick={handleFilterToggle}
 								className="flex items-center gap-2"
+								disabled={isRefetching}
 							>
 								<Filter className="h-4 w-4" />
 								Filtre {hasActiveFilters && "•"}
 							</Button>
 						</div>
+					</div>
+
+					{/* Results Count - Rovnaký štýl ako pri spisovateľoch */}
+					<div className="mt-4 text-sm text-muted-foreground">
+						{isRefetching ? (
+							<div className="flex items-center gap-2">
+								<Loader2 className="h-3 w-3 animate-spin" />
+								Aktualizácia dát...
+							</div>
+						) : filteredBooks.length === 0 ? (
+							"Nenašli sa žiadne knihy"
+						) : (
+							<>
+								Nájdených {filteredBooks.length}{" "}
+								{filteredBooks.length === 1
+									? "kniha"
+									: filteredBooks.length >= 2 && filteredBooks.length <= 4
+										? "knihy"
+										: "kníh"}
+								{searchTerm && ` pre "${searchTerm}"`}
+							</>
+						)}
 					</div>
 
 					{/* Filters Panel */}
@@ -306,6 +434,7 @@ const AllBooksWrapper: FC = () => {
 											value={selectedCategory}
 											onChange={(e) => setSelectedCategory(e.target.value)}
 											className="w-full p-2 border rounded-md"
+											disabled={isRefetching}
 										>
 											<option value="all">Všetky kategórie</option>
 											{categories.map((category) => (
@@ -323,6 +452,7 @@ const AllBooksWrapper: FC = () => {
 											value={availability}
 											onChange={(e) => setAvailability(e.target.value)}
 											className="w-full p-2 border rounded-md"
+											disabled={isRefetching}
 										>
 											<option value="all">Všetky</option>
 											<option value="available">Dostupné</option>
@@ -350,6 +480,7 @@ const AllBooksWrapper: FC = () => {
 									<button
 										onClick={() => setSearchTerm("")}
 										className="ml-1 hover:text-primary/70"
+										disabled={isRefetching}
 									>
 										<X className="h-3 w-3" />
 									</button>
@@ -361,6 +492,7 @@ const AllBooksWrapper: FC = () => {
 									<button
 										onClick={() => setSelectedCategory("all")}
 										className="ml-1 hover:text-primary/70"
+										disabled={isRefetching}
 									>
 										<X className="h-3 w-3" />
 									</button>
@@ -373,6 +505,7 @@ const AllBooksWrapper: FC = () => {
 									<button
 										onClick={() => setAvailability("all")}
 										className="ml-1 hover:text-primary/70"
+										disabled={isRefetching}
 									>
 										<X className="h-3 w-3" />
 									</button>
@@ -383,32 +516,28 @@ const AllBooksWrapper: FC = () => {
 				)}
 
 				{/* Books Grid */}
-				<motion.div
-					variants={containerVariants}
-					initial="hidden"
-					whileInView="visible"
-					className="mb-12"
-				>
-					<AnimatePresence mode="wait">
-						{filteredBooks.length > 0 ? (
-							<motion.div
-								key="books-grid"
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={{ opacity: 0 }}
-								className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-							>
+				<AnimatePresence mode="wait">
+					{filteredBooks.length > 0 ? (
+						<motion.div
+							key="books-grid"
+							variants={containerVariants}
+							initial="hidden"
+							whileInView="visible"
+							className="mb-12"
+						>
+							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 								{filteredBooks.map((book) => (
 									<motion.div
 										key={book.id}
 										variants={itemVariants}
 										layout
-										whileHover={{ y: -5, transition: { duration: 0.2 } }}
+										whileHover={{ y: -5, scale: 1.02 }}
+										transition={{ duration: 0.2 }}
 										onClick={() => navigate({ to: `/books/${book.id}` })}
 										className="cursor-pointer"
 									>
-										<Card className="h-full hover:shadow-lg transition-shadow duration-300">
-											<CardHeader className="pb-3">
+										<Card className="h-full hover:shadow-lg transition-all duration-300 border-border/50">
+											<CardHeader>
 												<CardTitle className="text-xl line-clamp-2">
 													{book.title}
 												</CardTitle>
@@ -433,7 +562,7 @@ const AllBooksWrapper: FC = () => {
 													</div>
 												)}
 											</CardHeader>
-											<CardContent className="pb-3">
+											<CardContent>
 												<p className="text-sm text-muted-foreground line-clamp-3">
 													{book.description || "Žiadny popis."}
 												</p>
@@ -464,45 +593,72 @@ const AllBooksWrapper: FC = () => {
 										</Card>
 									</motion.div>
 								))}
-							</motion.div>
-						) : (
-							<motion.div
-								key="no-books"
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={{ opacity: 0 }}
-								className="text-center py-12"
-							>
-								<BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+							</div>
+						</motion.div>
+					) : (
+						// No Results State - Rovnaký štýl ako pri spisovateľoch
+						<motion.div
+							key="no-books"
+							initial={{ opacity: 0, scale: 0.9 }}
+							animate={{ opacity: 1, scale: 1 }}
+							className="text-center py-12"
+						>
+							<div className="mx-auto max-w-md">
+								<div className="rounded-full bg-muted p-6 w-24 h-24 flex items-center justify-center mx-auto mb-6">
+									<Search className="h-12 w-12 text-muted-foreground" />
+								</div>
 								<h3 className="text-xl font-semibold mb-2">
 									Nenašli sa žiadne knihy
 								</h3>
-								<p className="text-muted-foreground mb-4">
-									{hasActiveFilters
-										? "Pre zadané kritériá sa nenašli žiadne výsledky."
-										: "Skúste zmeniť vyhľadávací výraz alebo filtrovanie."}
+								<p className="text-muted-foreground mb-6">
+									Skúste zmeniť kritériá vyhľadávania alebo vymazať filtre
 								</p>
-								{hasActiveFilters && (
-									<Button variant="outline" onClick={clearFilters}>
-										Vymazať všetky filtre
-									</Button>
-								)}
-							</motion.div>
-						)}
-					</AnimatePresence>
-				</motion.div>
+								<Button
+									variant="outline"
+									onClick={() => {
+										setSearchTerm("");
+										setSelectedCategory("all");
+										setAvailability("all");
+									}}
+									disabled={isRefetching}
+								>
+									<X className="mr-2 h-4 w-4" />
+									Vymazať všetky filtre
+								</Button>
+							</div>
+						</motion.div>
+					)}
+				</AnimatePresence>
 
-				{/* Stats */}
+				{/* Stats - Rovnaký štýl ako pri spisovateľoch */}
 				<motion.div
-					initial={{ opacity: 0 }}
-					whileInView={{ opacity: 1 }}
-					transition={{ delay: 0.5 }}
-					className="text-center text-muted-foreground"
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6, delay: 0.4 }}
+					className="text-center mt-12"
 				>
-					<p>
-						Zobrazených {filteredBooks.length} z {books.length} kníh
-						{hasActiveFilters && " (filtrovaných)"}
-					</p>
+					<div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-xl mx-auto">
+						<div className="text-center p-4 rounded-lg border bg-card">
+							<div className="text-2xl font-bold text-primary">
+								{books.length}
+							</div>
+							<div className="text-sm text-muted-foreground">Celkom kníh</div>
+						</div>
+						<div className="text-center p-4 rounded-lg border bg-card">
+							<div className="text-2xl font-bold text-green-600">
+								{books.filter((book) => book.isAvailable).length}
+							</div>
+							<div className="text-sm text-muted-foreground">
+								Dostupných kníh
+							</div>
+						</div>
+						<div className="text-center p-4 rounded-lg border bg-card">
+							<div className="text-2xl font-bold text-purple-600">
+								{categories.length}
+							</div>
+							<div className="text-sm text-muted-foreground">Kategórií</div>
+						</div>
+					</div>
 				</motion.div>
 			</div>
 		</section>

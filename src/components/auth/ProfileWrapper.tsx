@@ -17,7 +17,6 @@ import {
 	Shield,
 	Mail,
 	Phone,
-	MapPin,
 	Edit,
 	Camera,
 	CheckCircle,
@@ -188,7 +187,7 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({
 						transition={{ duration: 0.5, delay: 0.1 }}
 					>
 						{/* Profile Card */}
-						<Card className="shadow-lg border-0 bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-950/30">
+						<Card className="shadow-lg border-0 bg-linear-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-950/30">
 							<CardContent className="p-6">
 								<div className="flex flex-col items-center text-center">
 									<div className="relative mb-4">
@@ -197,7 +196,7 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({
 												src={userData.avatarUrl}
 												alt={userData.name}
 											/>
-											<AvatarFallback className="text-2xl bg-gradient-to-br from-blue-600 to-purple-600">
+											<AvatarFallback className="text-2xl bg-linear-to-br from-blue-600 to-purple-600">
 												{userData.name
 													.split(" ")
 													.map((n) => n[0])
@@ -336,7 +335,7 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({
 													{stats.fines} €
 												</Badge>
 											) : (
-												<Badge variant="success" className="font-bold">
+												<Badge className="font-bold">
 													<CheckCircle className="h-3 w-3 mr-1" />
 													Žiadne
 												</Badge>

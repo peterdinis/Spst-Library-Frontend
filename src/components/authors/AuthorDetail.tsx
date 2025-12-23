@@ -1,5 +1,15 @@
-import React, { useEffect } from "react";
-import { Book, Award, Calendar, Globe, TrendingUp, Users, Loader2, X, RefreshCw } from "lucide-react";
+import React from "react";
+import {
+	Book,
+	Award,
+	Calendar,
+	Globe,
+	TrendingUp,
+	Users,
+	Loader2,
+	X,
+	RefreshCw,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -48,29 +58,30 @@ export const AuthorDetail: React.FC<AuthorDetailProps> = ({
 		isError,
 		error,
 		refetch,
-		isRefetching
+		isRefetching,
 	} = useQuery({
-		queryKey: ['author', authorId],
+		queryKey: ["author", authorId],
 		queryFn: async () => {
 			if (!authorId) {
 				throw new Error("Author ID is required");
 			}
-			
-			const result = await getAuthorDetail({ data: {
-				authorId
-			}});
-			
+
+			const result = await getAuthorDetail({
+				data: {
+					authorId,
+				},
+			});
+
 			if (!result.success || !result.data) {
 				throw new Error(result.error || "Failed to fetch author details");
 			}
-			
+
 			return result.data;
 		},
 		enabled: !!authorId,
 		retry: 3,
 		retryDelay: 1000,
 		staleTime: 5 * 60 * 1000, // 5 minutes
-		cacheTime: 10 * 60 * 1000, // 10 minutes
 	});
 
 	const handleRefresh = () => {
@@ -97,7 +108,8 @@ export const AuthorDetail: React.FC<AuthorDetailProps> = ({
 							</div>
 							<h3 className="text-xl font-semibold mb-2">Chýba ID autora</h3>
 							<p className="text-muted-foreground">
-								Pre zobrazenie detailov autora je potrebné špecifikovať ID autora.
+								Pre zobrazenie detailov autora je potrebné špecifikovať ID
+								autora.
 							</p>
 						</div>
 					</CardContent>
@@ -118,7 +130,9 @@ export const AuthorDetail: React.FC<AuthorDetailProps> = ({
 					<CardContent className="py-12">
 						<div className="flex flex-col items-center justify-center">
 							<Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-							<h3 className="text-xl font-semibold mb-2">Načítavanie detailov autora...</h3>
+							<h3 className="text-xl font-semibold mb-2">
+								Načítavanie detailov autora...
+							</h3>
 							<p className="text-muted-foreground">Prosím čakajte</p>
 						</div>
 					</CardContent>
@@ -128,7 +142,8 @@ export const AuthorDetail: React.FC<AuthorDetailProps> = ({
 	}
 
 	if (isError || !authorData) {
-		const errorMessage = error instanceof Error ? error.message : "Nastala neznáma chyba";
+		const errorMessage =
+			error instanceof Error ? error.message : "Nastala neznáma chyba";
 		return (
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
@@ -142,10 +157,14 @@ export const AuthorDetail: React.FC<AuthorDetailProps> = ({
 							<div className="rounded-full bg-destructive/10 p-6 w-24 h-24 flex items-center justify-center mx-auto mb-6">
 								<X className="h-12 w-12 text-destructive" />
 							</div>
-							<h3 className="text-xl font-semibold mb-2">Chyba pri načítavaní</h3>
+							<h3 className="text-xl font-semibold mb-2">
+								Chyba pri načítavaní
+							</h3>
 							<p className="text-muted-foreground mb-6">{errorMessage}</p>
 							<Button onClick={handleRefresh} disabled={isRefetching}>
-								<RefreshCw className={`mr-2 h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`} />
+								<RefreshCw
+									className={`mr-2 h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
+								/>
 								Skúsiť znova
 							</Button>
 						</div>
@@ -157,25 +176,26 @@ export const AuthorDetail: React.FC<AuthorDetailProps> = ({
 
 	// Transformácia dát z API na formát komponentu
 	const author: AuthorDetailData = authorData;
-	
+
 	const name = `${author.firstName} ${author.lastName}`;
 	const biography = author.biography || "Životopis nie je k dispozícii";
 	const nationality = author.country;
-	
+
 	// Extrahovanie roku z dátumu narodenia
-	const birthYear = author.dateOfBirth 
-		? new Date(author.dateOfBirth).getFullYear() 
+	const birthYear = author.dateOfBirth
+		? new Date(author.dateOfBirth).getFullYear()
 		: undefined;
-	
-	const deathYear = author.dateOfDeath 
-		? new Date(author.dateOfDeath).getFullYear() 
+
+	const deathYear = author.dateOfDeath
+		? new Date(author.dateOfDeath).getFullYear()
 		: undefined;
-	
+
 	const totalBooks = author.booksCount || 0;
 	const availableBooks = 0; // Toto by sa malo získať z API, ak je dostupné
-	const genres = author.books?.map(book => book.categoryName).filter(Boolean) || [];
+	const genres =
+		author.books?.map((book) => book.categoryName).filter(Boolean) || [];
 	const awards: string[] = []; // Toto by sa malo získať z API, ak je dostupné
-	
+
 	// Farba avataru podľa ID autora
 	const avatarColors = [
 		"bg-gradient-to-br from-blue-600 to-purple-600",
@@ -242,7 +262,9 @@ export const AuthorDetail: React.FC<AuthorDetailProps> = ({
 					disabled={isRefetching}
 					className="shadow-md"
 				>
-					<RefreshCw className={`h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`} />
+					<RefreshCw
+						className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
+					/>
 				</Button>
 			</div>
 
@@ -272,7 +294,7 @@ export const AuthorDetail: React.FC<AuthorDetailProps> = ({
 							<div className="flex items-start justify-between">
 								<div>
 									<CardTitle className="text-3xl mb-2">{name}</CardTitle>
-									
+
 									{author.email && (
 										<motion.div
 											className="text-sm text-gray-600 mb-1"
@@ -291,9 +313,13 @@ export const AuthorDetail: React.FC<AuthorDetailProps> = ({
 											animate={{ opacity: 1 }}
 											transition={{ delay: 0.15 }}
 										>
-											<span className="font-medium">Webstránka:</span>{' '}
-											<a 
-												href={author.website.startsWith('http') ? author.website : `https://${author.website}`}
+											<span className="font-medium">Webstránka:</span>{" "}
+											<a
+												href={
+													author.website.startsWith("http")
+														? author.website
+														: `https://${author.website}`
+												}
 												target="_blank"
 												rel="noopener noreferrer"
 												className="text-blue-600 hover:underline"
@@ -310,7 +336,9 @@ export const AuthorDetail: React.FC<AuthorDetailProps> = ({
 											animate={{ opacity: 1 }}
 											transition={{ delay: 0.2 }}
 										>
-											<Badge variant={author.isActive ? "default" : "secondary"}>
+											<Badge
+												variant={author.isActive ? "default" : "secondary"}
+											>
 												{author.status}
 											</Badge>
 										</motion.div>
@@ -329,7 +357,11 @@ export const AuthorDetail: React.FC<AuthorDetailProps> = ({
 										<Calendar className="h-4 w-4" />
 										<span>
 											{birthYear}
-											{deathYear ? ` - ${deathYear}` : author.isActive ? " - súčasnosť" : ""}
+											{deathYear
+												? ` - ${deathYear}`
+												: author.isActive
+													? " - súčasnosť"
+													: ""}
 										</span>
 									</motion.div>
 								)}
@@ -522,12 +554,12 @@ export const AuthorDetail: React.FC<AuthorDetailProps> = ({
 					>
 						<div className="grid grid-cols-2 gap-4">
 							<div>
-								<span className="font-medium">Vytvorené:</span>{' '}
-								{new Date(author.createdDate).toLocaleDateString('sk-SK')}
+								<span className="font-medium">Vytvorené:</span>{" "}
+								{new Date(author.createdDate).toLocaleDateString("sk-SK")}
 							</div>
 							<div>
-								<span className="font-medium">Posledná úprava:</span>{' '}
-								{new Date(author.lastModified).toLocaleDateString('sk-SK')}
+								<span className="font-medium">Posledná úprava:</span>{" "}
+								{new Date(author.lastModified).toLocaleDateString("sk-SK")}
 							</div>
 						</div>
 					</motion.div>

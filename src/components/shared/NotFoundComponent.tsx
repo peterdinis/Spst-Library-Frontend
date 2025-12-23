@@ -69,7 +69,7 @@ export function NotFoundComponent({
 						</div>
 					</motion.div>
 
-					<CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+					<CardTitle className="text-3xl font-bold bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
 						404
 					</CardTitle>
 					<p className="text-xl font-semibold mt-2">{title}</p>
@@ -106,7 +106,7 @@ export function NotFoundComponent({
 							repeat: Infinity,
 							ease: "linear",
 						}}
-						className="h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent rounded-full"
+						className="h-1 bg-linear-to-r from-transparent via-primary/30 to-transparent rounded-full"
 					/>
 
 					<div className="text-center">
