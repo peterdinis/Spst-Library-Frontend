@@ -17,6 +17,7 @@ export const env = createEnv({
 		VITE_BACKEND_BOOKS_API: z.string().url(),
 		VITE_BACKEND_CATEGORIES_API: z.string().url(),
 		VITE_BACKEND_AUTHORS_API: z.string().url(),
+		VITE_BACKEND_IDENTITY_API: z.string().url(),
 	},
 
 	/**
