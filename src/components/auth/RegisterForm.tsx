@@ -30,7 +30,6 @@ import { useForm } from "@tanstack/react-form";
 const RegisterForm: FC = () => {
 	const router = useRouter();
 
-	// TanStack Query mutation for registration
 	const registerMutation = useMutation({
 		mutationFn: (data: RegisterInput) => registerUser({ data }),
 		onSuccess: (response) => {
@@ -40,7 +39,6 @@ const RegisterForm: FC = () => {
 					className: "bg-emerald-600 text-white",
 				});
 
-				// Automatically redirect to login after 2 seconds
 				setTimeout(() => {
 					router.navigate({ to: "/login" });
 				}, 2000);
@@ -71,12 +69,10 @@ const RegisterForm: FC = () => {
 		},
 	});
 
-
 	const isLoading = registerMutation.isPending;
 
 	return (
 		<div className="w-full max-w-md mx-auto mt-5">
-			{/* Decorative elements */}
 			<motion.div
 				initial={{ opacity: 0, scale: 0.5 }}
 				animate={{ opacity: 1, scale: 1 }}
@@ -84,14 +80,13 @@ const RegisterForm: FC = () => {
 				className="flex justify-center mb-8"
 			>
 				<div className="relative">
-					<div className="absolute inset-0 bg-linear-to-r from-emerald-600 to-cyan-600 rounded-full blur-2xl opacity-20 animate-pulse"></div>
-					<div className="relative bg-linear-to-br from-emerald-600 to-cyan-600 p-4 rounded-2xl shadow-2xl">
+					<div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-full blur-2xl opacity-20 animate-pulse"></div>
+					<div className="relative bg-gradient-to-br from-emerald-600 to-cyan-600 p-4 rounded-2xl shadow-2xl">
 						<BookOpen className="h-12 w-12 text-white" />
 					</div>
 				</div>
 			</motion.div>
 
-			{/* Success message */}
 			{registerMutation.data?.success && (
 				<motion.div
 					initial={{ opacity: 0, y: -20 }}
@@ -126,7 +121,7 @@ const RegisterForm: FC = () => {
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ delay: 0.2 }}
 						>
-							<CardTitle className="text-3xl font-bold text-center bg-linear-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">
+							<CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">
 								Create an account
 							</CardTitle>
 						</motion.div>
@@ -149,14 +144,13 @@ const RegisterForm: FC = () => {
 						}}
 					>
 						<CardContent className="space-y-5">
-							{/* General error */}
 							{registerMutation.error && (
 								<motion.div
 									initial={{ opacity: 0, scale: 0.95, y: -10 }}
 									animate={{ opacity: 1, scale: 1, y: 0 }}
-									className="relative overflow-hidden rounded-lg p-4 bg-linear-to-r from-red-50 to-pink-50 dark:from-red-950/20 dark:to-pink-950/20 border border-red-200 dark:border-red-800"
+									className="relative overflow-hidden rounded-lg p-4 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-950/20 dark:to-pink-950/20 border border-red-200 dark:border-red-800"
 								>
-									<div className="absolute top-0 left-0 w-1 h-full bg-linear-to-b from-red-500 to-pink-500"></div>
+									<div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-red-500 to-pink-500"></div>
 									<p className="text-sm text-red-700 dark:text-red-300 ml-3">
 										{registerMutation.error.message}
 									</p>
@@ -186,9 +180,8 @@ const RegisterForm: FC = () => {
 											<Sparkles className="h-3 w-3 text-emerald-600" />
 											Full Name
 										</label>
-										<div className="relative group">
-											<div className="absolute inset-0 bg-linear-to-r from-emerald-600 to-cyan-600 rounded-lg opacity-0 group-hover:opacity-10 transition-opacity blur"></div>
-											<User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground transition-colors group-hover:text-emerald-600" />
+										<div className="relative">
+											<User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none z-10" />
 											<Input
 												id={field.name}
 												name={field.name}
@@ -197,16 +190,16 @@ const RegisterForm: FC = () => {
 												value={field.state.value}
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.value)}
-												className={`pl-11 h-12 border-2 transition-all focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 ${field.state.meta.errors.length ? "border-red-500 focus:border-red-500" : ""
-													}`}
-												required
+												className={`pl-11 h-12 border-2 transition-all focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 relative z-20 ${
+													field.state.meta.errors?.length > 0 ? "border-red-500 focus:border-red-500" : ""
+												}`}
 											/>
 										</div>
-										{field.state.meta.errors ? (
+										{field.state.meta.errors && field.state.meta.errors.length > 0 && (
 											<p className="text-sm text-red-500 italic">
 												{field.state.meta.errors.join(", ")}
 											</p>
-										) : null}
+										)}
 									</motion.div>
 								)}
 							/>
@@ -234,9 +227,8 @@ const RegisterForm: FC = () => {
 											<Sparkles className="h-3 w-3 text-cyan-600" />
 											Email
 										</label>
-										<div className="relative group">
-											<div className="absolute inset-0 bg-linear-to-r from-emerald-600 to-cyan-600 rounded-lg opacity-0 group-hover:opacity-10 transition-opacity blur"></div>
-											<Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground transition-colors group-hover:text-cyan-600" />
+										<div className="relative">
+											<Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none z-10" />
 											<Input
 												id={field.name}
 												name={field.name}
@@ -245,16 +237,16 @@ const RegisterForm: FC = () => {
 												value={field.state.value}
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.value)}
-												className={`pl-11 h-12 border-2 transition-all focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20 ${field.state.meta.errors.length ? "border-red-500 focus:border-red-500" : ""
-													}`}
-												required
+												className={`pl-11 h-12 border-2 transition-all focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20 relative z-20 ${
+													field.state.meta.errors?.length > 0 ? "border-red-500 focus:border-red-500" : ""
+												}`}
 											/>
 										</div>
-										{field.state.meta.errors ? (
+										{field.state.meta.errors && field.state.meta.errors.length > 0 && (
 											<p className="text-sm text-red-500 italic">
 												{field.state.meta.errors.join(", ")}
 											</p>
-										) : null}
+										)}
 									</motion.div>
 								)}
 							/>
@@ -282,9 +274,8 @@ const RegisterForm: FC = () => {
 											<Sparkles className="h-3 w-3 text-emerald-600" />
 											Password
 										</label>
-										<div className="relative group">
-											<div className="absolute inset-0 bg-linear-to-r from-emerald-600 to-cyan-600 rounded-lg opacity-0 group-hover:opacity-10 transition-opacity blur"></div>
-											<Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground transition-colors group-hover:text-emerald-600" />
+										<div className="relative">
+											<Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none z-10" />
 											<Input
 												id={field.name}
 												name={field.name}
@@ -293,16 +284,16 @@ const RegisterForm: FC = () => {
 												value={field.state.value}
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.value)}
-												className={`pl-11 h-12 border-2 transition-all focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 ${field.state.meta.errors.length ? "border-red-500 focus:border-red-500" : ""
-													}`}
-												required
+												className={`pl-11 h-12 border-2 transition-all focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 relative z-20 ${
+													field.state.meta.errors?.length > 0 ? "border-red-500 focus:border-red-500" : ""
+												}`}
 											/>
 										</div>
-										{field.state.meta.errors ? (
+										{field.state.meta.errors && field.state.meta.errors.length > 0 && (
 											<p className="text-sm text-red-500 italic">
 												{field.state.meta.errors.join(", ")}
 											</p>
-										) : null}
+										)}
 									</motion.div>
 								)}
 							/>
@@ -311,8 +302,10 @@ const RegisterForm: FC = () => {
 							<form.Field
 								name="confirmPassword"
 								validators={{
-									onBlur: ({ value, fieldApi }) => {
-										if (value !== fieldApi.form.getFieldValue("password")) {
+									onChangeListenTo: ["password"],
+									onChange: ({ value, fieldApi }) => {
+										const password = fieldApi.form.getFieldValue("password");
+										if (value && password && value !== password) {
 											return "Passwords don't match";
 										}
 										return undefined;
@@ -332,9 +325,8 @@ const RegisterForm: FC = () => {
 											<Sparkles className="h-3 w-3 text-cyan-600" />
 											Confirm Password
 										</label>
-										<div className="relative group">
-											<div className="absolute inset-0 bg-linear-to-r from-emerald-600 to-cyan-600 rounded-lg opacity-0 group-hover:opacity-10 transition-opacity blur"></div>
-											<Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground transition-colors group-hover:text-cyan-600" />
+										<div className="relative">
+											<Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none z-10" />
 											<Input
 												id={field.name}
 												name={field.name}
@@ -343,21 +335,21 @@ const RegisterForm: FC = () => {
 												value={field.state.value}
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.value)}
-												className={`pl-11 h-12 border-2 transition-all focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20 ${field.state.meta.errors.length ? "border-red-500 focus:border-red-500" : ""
-													}`}
-												required
+												className={`pl-11 h-12 border-2 transition-all focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20 relative z-20 ${
+													field.state.meta.errors?.length > 0 ? "border-red-500 focus:border-red-500" : ""
+												}`}
 											/>
 										</div>
-										{field.state.meta.errors ? (
+										{field.state.meta.errors && field.state.meta.errors.length > 0 && (
 											<p className="text-sm text-red-500 italic">
 												{field.state.meta.errors.join(", ")}
 											</p>
-										) : null}
+										)}
 									</motion.div>
 								)}
 							/>
 
-							{/* Role Selection (optional) */}
+							{/* Role Selection */}
 							<form.Field
 								name="role"
 								children={(field) => (
@@ -372,15 +364,16 @@ const RegisterForm: FC = () => {
 											Role (optional)
 										</label>
 										<div className="grid grid-cols-3 gap-2">
-											{["Student", "Teacher", "Admin"].map((role) => (
+											{["Student", "Teacher"].map((role) => (
 												<button
 													key={role}
 													type="button"
 													onClick={() => field.handleChange(role as any)}
-													className={`p-3 rounded-lg border-2 transition-all ${field.state.value === role
-														? "border-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300"
-														: "border-gray-200 dark:border-gray-800 hover:border-emerald-400"
-														}`}
+													className={`p-3 rounded-lg border-2 transition-all ${
+														field.state.value === role
+															? "border-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300"
+															: "border-gray-200 dark:border-gray-800 hover:border-emerald-400"
+													}`}
 												>
 													<span className="text-sm font-medium">{role}</span>
 												</button>
@@ -403,7 +396,7 @@ const RegisterForm: FC = () => {
 									children={([canSubmit, isSubmitting]) => (
 										<Button
 											type="submit"
-											className="w-full h-12 text-base font-semibold bg-linear-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+											className="w-full h-12 text-base font-semibold bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
 											disabled={!canSubmit || isSubmitting || isLoading}
 										>
 											<div className="flex items-center gap-2">
@@ -425,7 +418,7 @@ const RegisterForm: FC = () => {
 								<button
 									type="button"
 									onClick={() => router.navigate({ to: "/login" })}
-									className="font-semibold bg-linear-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent hover:from-emerald-700 hover:to-cyan-700 transition-all"
+									className="font-semibold bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent hover:from-emerald-700 hover:to-cyan-700 transition-all"
 								>
 									Log in
 								</button>
