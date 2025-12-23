@@ -172,7 +172,8 @@ const AllBooksWrapper: FC = () => {
 
 	// Error state - Rovnaký ako pri spisovateľoch
 	if (isError) {
-		const errorMessage = error instanceof Error ? error.message : "Nastala neznáma chyba";
+		const errorMessage =
+			error instanceof Error ? error.message : "Nastala neznáma chyba";
 		return (
 			<section className="py-16 bg-linear-to-b from-background to-muted/30">
 				<div className="container mx-auto px-4">
@@ -181,7 +182,9 @@ const AllBooksWrapper: FC = () => {
 							<div className="rounded-full bg-destructive/10 p-6 w-24 h-24 flex items-center justify-center mx-auto mb-6">
 								<X className="h-12 w-12 text-destructive" />
 							</div>
-							<h3 className="text-xl font-semibold mb-2">Chyba pri načítavaní</h3>
+							<h3 className="text-xl font-semibold mb-2">
+								Chyba pri načítavaní
+							</h3>
 							<p className="text-muted-foreground mb-6">{errorMessage}</p>
 							<Button onClick={handleRefresh}>
 								<RefreshCw className="mr-2 h-4 w-4" />
@@ -221,7 +224,9 @@ const AllBooksWrapper: FC = () => {
 									disabled={isRefetching}
 									className="relative"
 								>
-									<RefreshCw className={`h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`} />
+									<RefreshCw
+										className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
+									/>
 									{isRefetching && (
 										<span className="absolute -top-1 -right-1 h-2 w-2">
 											<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -247,9 +252,7 @@ const AllBooksWrapper: FC = () => {
 							<div className="rounded-full bg-muted p-6 w-24 h-24 flex items-center justify-center mx-auto mb-6">
 								<BookOpen className="h-12 w-12 text-muted-foreground" />
 							</div>
-							<h3 className="text-xl font-semibold mb-2">
-								Žiadne knihy
-							</h3>
+							<h3 className="text-xl font-semibold mb-2">Žiadne knihy</h3>
 							<p className="text-muted-foreground mb-6">
 								V knižnici sa momentálne nenachádzajú žiadne knihy.
 							</p>
@@ -258,7 +261,9 @@ const AllBooksWrapper: FC = () => {
 								onClick={handleRefresh}
 								disabled={isRefetching}
 							>
-								<RefreshCw className={`mr-2 h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`} />
+								<RefreshCw
+									className={`mr-2 h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
+								/>
 								Skúsiť znova
 							</Button>
 						</div>
@@ -273,23 +278,17 @@ const AllBooksWrapper: FC = () => {
 					>
 						<div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-xl mx-auto">
 							<div className="text-center p-4 rounded-lg border bg-card">
-								<div className="text-2xl font-bold text-primary">
-									0
-								</div>
+								<div className="text-2xl font-bold text-primary">0</div>
+								<div className="text-sm text-muted-foreground">Celkom kníh</div>
+							</div>
+							<div className="text-center p-4 rounded-lg border bg-card">
+								<div className="text-2xl font-bold text-green-600">0</div>
 								<div className="text-sm text-muted-foreground">
-									Celkom kníh
+									Dostupných kníh
 								</div>
 							</div>
 							<div className="text-center p-4 rounded-lg border bg-card">
-								<div className="text-2xl font-bold text-green-600">
-									0
-								</div>
-								<div className="text-sm text-muted-foreground">Dostupných kníh</div>
-							</div>
-							<div className="text-center p-4 rounded-lg border bg-card">
-								<div className="text-2xl font-bold text-purple-600">
-									0
-								</div>
+								<div className="text-2xl font-bold text-purple-600">0</div>
 								<div className="text-sm text-muted-foreground">Kategórií</div>
 							</div>
 						</div>
@@ -324,7 +323,9 @@ const AllBooksWrapper: FC = () => {
 								disabled={isRefetching}
 								className="relative"
 							>
-								<RefreshCw className={`h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`} />
+								<RefreshCw
+									className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
+								/>
 								{isRefetching && (
 									<span className="absolute -top-1 -right-1 h-2 w-2">
 										<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -641,15 +642,15 @@ const AllBooksWrapper: FC = () => {
 							<div className="text-2xl font-bold text-primary">
 								{books.length}
 							</div>
-							<div className="text-sm text-muted-foreground">
-								Celkom kníh
-							</div>
+							<div className="text-sm text-muted-foreground">Celkom kníh</div>
 						</div>
 						<div className="text-center p-4 rounded-lg border bg-card">
 							<div className="text-2xl font-bold text-green-600">
-								{books.filter(book => book.isAvailable).length}
+								{books.filter((book) => book.isAvailable).length}
 							</div>
-							<div className="text-sm text-muted-foreground">Dostupných kníh</div>
+							<div className="text-sm text-muted-foreground">
+								Dostupných kníh
+							</div>
 						</div>
 						<div className="text-center p-4 rounded-lg border bg-card">
 							<div className="text-2xl font-bold text-purple-600">
