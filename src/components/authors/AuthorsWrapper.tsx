@@ -25,7 +25,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Search, User, BookOpen, MapPin, X, Loader2, RefreshCw } from "lucide-react";
+import { Search, BookOpen, MapPin, X, Loader2, RefreshCw } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { authorsApi } from "@/api/authorsApi";
@@ -169,7 +169,7 @@ export function AllAuthorsWrapper() {
 
 	if (isLoading) {
 		return (
-			<section className="py-16 bg-gradient-to-b from-background to-muted/30">
+			<section className="py-16 bg-linear-to-b from-background to-muted/30">
 				<div className="container mx-auto px-4">
 					<div className="flex flex-col items-center justify-center py-20">
 						<Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
@@ -184,7 +184,7 @@ export function AllAuthorsWrapper() {
 	if (isError) {
 		const errorMessage = error instanceof Error ? error.message : "Nastala neznáma chyba";
 		return (
-			<section className="py-16 bg-gradient-to-b from-background to-muted/30">
+			<section className="py-16 bg-linear-to-b from-background to-muted/30">
 				<div className="container mx-auto px-4">
 					<div className="text-center py-12">
 						<div className="mx-auto max-w-md">
@@ -205,7 +205,7 @@ export function AllAuthorsWrapper() {
 	}
 
 	return (
-		<section className="py-16 bg-gradient-to-b from-background to-muted/30">
+		<section className="py-16 bg-linear-to-b from-background to-muted/30">
 			<div className="container mx-auto px-4">
 				{/* Header */}
 				<motion.div

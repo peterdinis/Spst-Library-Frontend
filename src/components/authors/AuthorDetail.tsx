@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Book, Award, Calendar, Globe, TrendingUp, Users, Loader2, X, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -70,7 +70,6 @@ export const AuthorDetail: React.FC<AuthorDetailProps> = ({
 		retry: 3,
 		retryDelay: 1000,
 		staleTime: 5 * 60 * 1000, // 5 minutes
-		cacheTime: 10 * 60 * 1000, // 10 minutes
 	});
 
 	const handleRefresh = () => {
