@@ -25,273 +25,37 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Search, User, BookOpen, MapPin, X } from "lucide-react";
+import { Search, User, BookOpen, MapPin, X, Loader2, RefreshCw } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { authorsApi } from "@/api/authorsApi";
 
 type Author = {
+	authorId: number;
+	firstName: string;
+	lastName: string;
+	biography?: string;
+	email: string;
+	dateOfBirth?: string;
+	dateOfDeath?: string;
+	country: string;
+	website?: string;
+	isActive: boolean;
+	createdDate: string;
+	lastModified: string;
+	age?: number;
+	status?: string;
+	booksCount?: number;
+	books?: Array<any>;
+};
+
+type TransformedAuthor = Author & {
 	id: string;
 	name: string;
-	biography: string;
-	photoUrl?: string;
-	nationality?: string;
+	fullName: string;
+	nationality: string;
+	photoUrl: string;
 };
-
-type Book = {
-	id: string;
-	title: string;
-	authorId: string;
-	authorName: string;
-	categoryName: string;
-	isbn: string;
-	publishedYear: number;
-	availableCopies: number;
-	totalCopies: number;
-	coverUrl?: string;
-	description?: string;
-};
-
-// Mock data defined directly in the component file
-const mockAuthors: Author[] = [
-	{
-		id: "1",
-		name: "J.K. Rowling",
-		biography:
-			"Britská spisovateľka, známa predovšetkým ako autorka série románov o Harry Potterovi. Jej knihy sa predali v miliónoch kópií po celom svete a boli adaptované do filmovej podoby.",
-		photoUrl:
-			"https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=400&fit=crop&crop=face",
-		nationality: "Britská",
-	},
-	{
-		id: "2",
-		name: "George Orwell",
-		biography:
-			"Britský spisovateľ a novinár, známy svojimi dielami 1984 a Farmou zvierat. Jeho diela sú kritikou totalitných režimov a sociálnych problémov.",
-		photoUrl:
-			"https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&h=400&fit=crop&crop=face",
-		nationality: "Britská",
-	},
-	{
-		id: "3",
-		name: "Stephen King",
-		biography:
-			"Americký spisovateľ hororov, sci-fi a fantasy, autor viac ako 60 románov. Je považovaný za kráľa hororu a jeho knihy boli sfilmované v mnohých filmových adaptáciách.",
-		photoUrl:
-			"https://images.unsplash.com/photo-1542596768-5d1d21f1cf98?w=400&h=400&fit=crop&crop=face",
-		nationality: "Americká",
-	},
-	{
-		id: "4",
-		name: "Agatha Christie",
-		biography:
-			"Britská spisovateľka detektívnych románov, najpredávanejšia autorka všetkých čias. Je známa svojimi príbehmi o Herkulovi Poirotovi a Miss Marple.",
-		photoUrl:
-			"https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&h=400&fit=crop&crop=face",
-		nationality: "Britská",
-	},
-	{
-		id: "5",
-		name: "Ernest Hemingway",
-		biography:
-			"Americký spisovateľ a novinár, nositeľ Nobelovej ceny za literatúru z roku 1954. Jeho minimalistický štýl a témy mužskej odvahy ovplyvnili celú generáciu spisovateľov.",
-		photoUrl:
-			"https://images.unsplash.com/photo-1567534296755-58d0d2c7d336?w=400&h=400&fit=crop&crop=face",
-		nationality: "Americká",
-	},
-	{
-		id: "6",
-		name: "Milan Kundera",
-		biography:
-			"Český a francúzsky spisovateľ, známy svojim dielom Nesnesiteľná ľahkosť bytia. Jeho tvorba sa zaoberá filozofickými otázkami ľudskej existencie a lásky.",
-		photoUrl:
-			"https://images.unsplash.com/photo-1552058544-f2b08422138a?w=400&h=400&fit=crop&crop=face",
-		nationality: "Česká/Francúzska",
-	},
-	{
-		id: "7",
-		name: "Pavol Dobšinský",
-		biography:
-			"Slovenský spisovateľ, básnik a zberateľ ľudových rozprávok. Významne prispel k zachovaniu slovenskej ľudovej slovesnosti.",
-		photoUrl:
-			"https://images.unsplash.com/photo-1562788869-4ed32648eb72?w=400&h=400&fit=crop&crop=face",
-		nationality: "Slovenská",
-	},
-	{
-		id: "8",
-		name: "Margita Figuli",
-		biography:
-			"Slovenská spisovateľka, autorka románov a poviedok pre deti a mládež. Jej dielo Tri gaštanové kone je klasikou slovenskej literatúry.",
-		nationality: "Slovenská",
-	},
-	{
-		id: "9",
-		name: "Ján Hollý",
-		biography:
-			"Slovenský básnik a prekladateľ, jeden z najvýznamnejších predstaviteľov slovenského klasicizmu. Prekladal antickú literatúru do slovenčiny.",
-		nationality: "Slovenská",
-	},
-	{
-		id: "10",
-		name: "William Shakespeare",
-		biography:
-			"Anglický dramatik a básnik, považovaný za najvýznamnejšieho spisovateľa v anglickom jazyku. Autor diel ako Romeo a Júlia, Hamlet a Macbeth.",
-		photoUrl:
-			"https://images.unsplash.com/photo-1561297101-0a65d4fca7ac?w=400&h=400&fit=crop&crop=face",
-		nationality: "Anglická",
-	},
-	{
-		id: "11",
-		name: "František Švantner",
-		biography:
-			"Slovenský spisovateľ, predstaviteľ naturalizmu v slovenskej literatúre. Autor románu Malka a iných diel.",
-		nationality: "Slovenská",
-	},
-	{
-		id: "12",
-		name: "Taras Ševčenko",
-		biography:
-			"Ukrajinský básnik, maliar a humanista, národný buditeľ Ukrajiny. Autor zbierky básní Kobzar.",
-		photoUrl:
-			"https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop&crop=face",
-		nationality: "Ukrajinská",
-	},
-];
-
-const mockBooks: Book[] = [
-	{
-		id: "1",
-		title: "Harry Potter a Kameň mudrcov",
-		authorId: "1",
-		authorName: "J.K. Rowling",
-		categoryName: "Fantasy",
-		isbn: "9788020415628",
-		publishedYear: 1997,
-		availableCopies: 3,
-		totalCopies: 5,
-	},
-	{
-		id: "2",
-		title: "1984",
-		authorId: "2",
-		authorName: "George Orwell",
-		categoryName: "Dystopia",
-		isbn: "9780451524935",
-		publishedYear: 1949,
-		availableCopies: 2,
-		totalCopies: 4,
-	},
-	{
-		id: "3",
-		title: "To",
-		authorId: "3",
-		authorName: "Stephen King",
-		categoryName: "Horor",
-		isbn: "9780450411434",
-		publishedYear: 1986,
-		availableCopies: 1,
-		totalCopies: 3,
-	},
-	{
-		id: "4",
-		title: "Vražda v Orient exprese",
-		authorId: "4",
-		authorName: "Agatha Christie",
-		categoryName: "Detektívka",
-		isbn: "9780007119318",
-		publishedYear: 1934,
-		availableCopies: 4,
-		totalCopies: 6,
-	},
-	{
-		id: "5",
-		title: "Starca a more",
-		authorId: "5",
-		authorName: "Ernest Hemingway",
-		categoryName: "Literatúra faktu",
-		isbn: "9780684801223",
-		publishedYear: 1952,
-		availableCopies: 2,
-		totalCopies: 3,
-	},
-	{
-		id: "6",
-		title: "Nesnesiteľná ľahkosť bytia",
-		authorId: "6",
-		authorName: "Milan Kundera",
-		categoryName: "Filozofický román",
-		isbn: "9788020412344",
-		publishedYear: 1984,
-		availableCopies: 2,
-		totalCopies: 3,
-	},
-	{
-		id: "7",
-		title: "Tri gaštanové kone",
-		authorId: "8",
-		authorName: "Margita Figuli",
-		categoryName: "Román",
-		isbn: "9788080781234",
-		publishedYear: 1940,
-		availableCopies: 5,
-		totalCopies: 8,
-	},
-	{
-		id: "8",
-		title: "Babylon",
-		authorId: "7",
-		authorName: "Pavol Dobšinský",
-		categoryName: "Ľudové rozprávky",
-		isbn: "9788080785678",
-		publishedYear: 1880,
-		availableCopies: 3,
-		totalCopies: 5,
-	},
-	{
-		id: "9",
-		title: "Svätojánske ohne",
-		authorId: "9",
-		authorName: "Ján Hollý",
-		categoryName: "Poezia",
-		isbn: "9788080789010",
-		publishedYear: 1835,
-		availableCopies: 4,
-		totalCopies: 6,
-	},
-	{
-		id: "10",
-		title: "Harry Potter a Tajomná komnata",
-		authorId: "1",
-		authorName: "J.K. Rowling",
-		categoryName: "Fantasy",
-		isbn: "9788020415635",
-		publishedYear: 1998,
-		availableCopies: 2,
-		totalCopies: 4,
-	},
-	{
-		id: "11",
-		title: "Farma zvierat",
-		authorId: "2",
-		authorName: "George Orwell",
-		categoryName: "Satira",
-		isbn: "9780451526342",
-		publishedYear: 1945,
-		availableCopies: 3,
-		totalCopies: 5,
-	},
-	{
-		id: "12",
-		title: "Carrie",
-		authorId: "3",
-		authorName: "Stephen King",
-		categoryName: "Horor",
-		isbn: "9780451169532",
-		publishedYear: 1974,
-		availableCopies: 1,
-		totalCopies: 3,
-	},
-];
-
-const ITEMS_PER_PAGE_OPTIONS = [6, 12, 24, 48];
 
 export function AllAuthorsWrapper() {
 	const [searchQuery, setSearchQuery] = useState("");
@@ -299,32 +63,62 @@ export function AllAuthorsWrapper() {
 	const [itemsPerPage, setItemsPerPage] = useState(6);
 	const [nationalityFilter, setNationalityFilter] = useState<string>("all");
 
-	const getAuthorBookCount = (authorId: string) => {
-		return mockBooks.filter((book) => book.authorId === authorId).length;
-	};
+	// TanStack Query pre načítanie autorov
+	const {
+		data: authorsData,
+		isLoading,
+		isError,
+		error,
+		refetch,
+		isRefetching
+	} = useQuery({
+		queryKey: ['authors'],
+		queryFn: async () => {
+			const response = await authorsApi.getAllAuthors();
+			return response;
+		},
+		retry: 3,
+		retryDelay: 1000,
+		staleTime: 5 * 60 * 1000, // 5 minutes
+	});
+
+	// Transformácia dát
+	const authors: TransformedAuthor[] = useMemo(() => {
+		if (!authorsData) return [];
+		
+		return authorsData.map((author: Author) => ({
+			...author,
+			id: author.authorId.toString(),
+			name: `${author.firstName} ${author.lastName}`,
+			fullName: `${author.firstName} ${author.lastName}`,
+			nationality: author.country,
+			photoUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(author.firstName + ' ' + author.lastName)}&background=random&size=128`
+		}));
+	}, [authorsData]);
 
 	// Get unique nationalities for filter
 	const nationalities = useMemo(() => {
 		const uniqueNationalities = new Set(
-			mockAuthors.map((author) => author.nationality).filter(Boolean),
+			authors.map((author) => author.country).filter(Boolean),
 		);
 		return Array.from(uniqueNationalities).sort();
-	}, []);
+	}, [authors]);
 
 	// Filter and search authors
 	const filteredAuthors = useMemo(() => {
-		return mockAuthors.filter((author) => {
+		return authors.filter((author) => {
 			const matchesSearch =
 				searchQuery === "" ||
 				author.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				author.biography.toLowerCase().includes(searchQuery.toLowerCase());
+				author.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				(author.biography && author.biography.toLowerCase().includes(searchQuery.toLowerCase()));
 
 			const matchesNationality =
-				nationalityFilter === "all" || author.nationality === nationalityFilter;
+				nationalityFilter === "all" || author.country === nationalityFilter;
 
 			return matchesSearch && matchesNationality;
 		});
-	}, [searchQuery, nationalityFilter]);
+	}, [authors, searchQuery, nationalityFilter]);
 
 	// Calculate pagination
 	const totalPages = Math.ceil(filteredAuthors.length / itemsPerPage);
@@ -367,6 +161,49 @@ export function AllAuthorsWrapper() {
 		window.scrollTo({ top: 0, behavior: "smooth" });
 	};
 
+	const handleRefresh = () => {
+		refetch();
+	};
+
+	const ITEMS_PER_PAGE_OPTIONS = [6, 12, 24, 48];
+
+	if (isLoading) {
+		return (
+			<section className="py-16 bg-gradient-to-b from-background to-muted/30">
+				<div className="container mx-auto px-4">
+					<div className="flex flex-col items-center justify-center py-20">
+						<Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+						<h3 className="text-xl font-semibold mb-2">Načítavanie autorov...</h3>
+						<p className="text-muted-foreground">Prosím čakajte</p>
+					</div>
+				</div>
+			</section>
+		);
+	}
+
+	if (isError) {
+		const errorMessage = error instanceof Error ? error.message : "Nastala neznáma chyba";
+		return (
+			<section className="py-16 bg-gradient-to-b from-background to-muted/30">
+				<div className="container mx-auto px-4">
+					<div className="text-center py-12">
+						<div className="mx-auto max-w-md">
+							<div className="rounded-full bg-destructive/10 p-6 w-24 h-24 flex items-center justify-center mx-auto mb-6">
+								<X className="h-12 w-12 text-destructive" />
+							</div>
+							<h3 className="text-xl font-semibold mb-2">Chyba pri načítavaní</h3>
+							<p className="text-muted-foreground mb-6">{errorMessage}</p>
+							<Button onClick={handleRefresh}>
+								<RefreshCw className="mr-2 h-4 w-4" />
+								Skúsiť znova
+							</Button>
+						</div>
+					</div>
+				</div>
+			</section>
+		);
+	}
+
 	return (
 		<section className="py-16 bg-gradient-to-b from-background to-muted/30">
 			<div className="container mx-auto px-4">
@@ -377,9 +214,31 @@ export function AllAuthorsWrapper() {
 					transition={{ duration: 0.6 }}
 					className="text-center mb-12"
 				>
-					<h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-						Naši autori
-					</h1>
+					<div className="flex justify-between items-center mb-4">
+						<div className="flex-1"></div>
+						<div className="flex-1 text-center">
+							<h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+								Naši autori
+							</h1>
+						</div>
+						<div className="flex-1 flex justify-end">
+							<Button
+								variant="outline"
+								size="icon"
+								onClick={handleRefresh}
+								disabled={isRefetching}
+								className="relative"
+							>
+								<RefreshCw className={`h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`} />
+								{isRefetching && (
+									<span className="absolute -top-1 -right-1 h-2 w-2">
+										<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+										<span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+									</span>
+								)}
+							</Button>
+						</div>
+					</div>
 					<p className="text-lg text-muted-foreground max-w-2xl mx-auto">
 						Spoznajte autorov kníh v našej knižnici
 					</p>
@@ -407,6 +266,7 @@ export function AllAuthorsWrapper() {
 								<button
 									onClick={handleSearchClear}
 									className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+									disabled={isRefetching}
 								>
 									<X className="h-4 w-4" />
 								</button>
@@ -419,6 +279,7 @@ export function AllAuthorsWrapper() {
 							<Select
 								value={nationalityFilter}
 								onValueChange={setNationalityFilter}
+								disabled={isRefetching}
 							>
 								<SelectTrigger className="w-full sm:w-48">
 									<SelectValue placeholder="Všetky národnosti" />
@@ -437,6 +298,7 @@ export function AllAuthorsWrapper() {
 							<Select
 								value={itemsPerPage.toString()}
 								onValueChange={(value) => setItemsPerPage(parseInt(value))}
+								disabled={isRefetching}
 							>
 								<SelectTrigger className="w-full sm:w-32">
 									<SelectValue placeholder="Počet na stranu" />
@@ -454,7 +316,12 @@ export function AllAuthorsWrapper() {
 
 					{/* Results Count */}
 					<div className="mt-4 text-sm text-muted-foreground">
-						{filteredAuthors.length === 0 ? (
+						{isRefetching ? (
+							<div className="flex items-center gap-2">
+								<Loader2 className="h-3 w-3 animate-spin" />
+								Aktualizácia dát...
+							</div>
+						) : filteredAuthors.length === 0 ? (
 							"Nenašli sa žiadni autori"
 						) : (
 							<>
@@ -496,32 +363,31 @@ export function AllAuthorsWrapper() {
 										<Card className="h-full hover:shadow-lg transition-all duration-300 border-border/50">
 											<CardHeader>
 												<div className="flex items-start gap-4 mb-3">
-													{author.photoUrl ? (
-														<img
-															src={author.photoUrl}
-															alt={author.name}
-															className="w-16 h-16 rounded-full object-cover ring-2 ring-muted"
-															loading="lazy"
-														/>
-													) : (
-														<div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center ring-2 ring-muted">
-															<User className="h-8 w-8 text-white" />
-														</div>
-													)}
+													<img
+														src={author.photoUrl}
+														alt={author.name}
+														className="w-16 h-16 rounded-full object-cover ring-2 ring-muted"
+														loading="lazy"
+														onError={(e) => {
+															const target = e.target as HTMLImageElement;
+															target.onerror = null;
+															target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(author.firstName + ' ' + author.lastName)}&background=6b7280&color=fff&size=128`;
+														}}
+													/>
 													<div className="flex-1">
 														<CardTitle className="text-xl mb-1">
 															{author.name}
 														</CardTitle>
-														{author.nationality && (
+														{author.country && (
 															<div className="flex items-center gap-1 text-sm text-muted-foreground">
 																<MapPin className="h-3 w-3" />
-																{author.nationality}
+																{author.country}
 															</div>
 														)}
 													</div>
 												</div>
 												<CardDescription className="line-clamp-3">
-													{author.biography}
+													{author.biography || "Životopis nie je k dispozícii"}
 												</CardDescription>
 											</CardHeader>
 											<CardContent>
@@ -529,11 +395,11 @@ export function AllAuthorsWrapper() {
 													<div className="flex items-center gap-2 text-sm">
 														<BookOpen className="h-4 w-4 text-muted-foreground" />
 														<span className="text-muted-foreground">
-															{getAuthorBookCount(author.id)}{" "}
-															{getAuthorBookCount(author.id) === 1
+															{author.booksCount || 0}{" "}
+															{(author.booksCount || 0) === 1
 																? "kniha"
-																: getAuthorBookCount(author.id) >= 2 &&
-																		getAuthorBookCount(author.id) <= 4
+																: (author.booksCount || 0) >= 2 &&
+																		(author.booksCount || 0) <= 4
 																	? "knihy"
 																	: "kníh"}
 														</span>
@@ -569,6 +435,7 @@ export function AllAuthorsWrapper() {
 														? "pointer-events-none opacity-50"
 														: "cursor-pointer"
 												}
+												disabled={isRefetching}
 											/>
 										</PaginationItem>
 
@@ -596,6 +463,7 @@ export function AllAuthorsWrapper() {
 																onClick={() => handlePageChange(page)}
 																isActive={currentPage === page}
 																className="cursor-pointer"
+																disabled={isRefetching}
 															>
 																{page}
 															</PaginationLink>
@@ -616,6 +484,7 @@ export function AllAuthorsWrapper() {
 														? "pointer-events-none opacity-50"
 														: "cursor-pointer"
 												}
+												disabled={isRefetching}
 											/>
 										</PaginationItem>
 									</PaginationContent>
@@ -653,6 +522,7 @@ export function AllAuthorsWrapper() {
 									setSearchQuery("");
 									setNationalityFilter("all");
 								}}
+								disabled={isRefetching}
 							>
 								<X className="mr-2 h-4 w-4" />
 								Vymazať všetky filtre
@@ -671,7 +541,7 @@ export function AllAuthorsWrapper() {
 					<div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-xl mx-auto">
 						<div className="text-center p-4 rounded-lg border bg-card">
 							<div className="text-2xl font-bold text-primary">
-								{mockAuthors.length}
+								{authors.length}
 							</div>
 							<div className="text-sm text-muted-foreground">
 								Celkom autorov
@@ -679,15 +549,15 @@ export function AllAuthorsWrapper() {
 						</div>
 						<div className="text-center p-4 rounded-lg border bg-card">
 							<div className="text-2xl font-bold text-green-600">
-								{mockBooks.length}
+								{authors.reduce((sum, author) => sum + (author.booksCount || 0), 0)}
 							</div>
 							<div className="text-sm text-muted-foreground">Celkom kníh</div>
 						</div>
 						<div className="text-center p-4 rounded-lg border bg-card">
 							<div className="text-2xl font-bold text-purple-600">
-								{new Set(mockBooks.map((b) => b.categoryName)).size}
+								{new Set(authors.map(a => a.country)).size}
 							</div>
-							<div className="text-sm text-muted-foreground">Kategórií</div>
+							<div className="text-sm text-muted-foreground">Krajín</div>
 						</div>
 					</div>
 				</motion.div>
