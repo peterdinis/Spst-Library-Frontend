@@ -19,8 +19,6 @@ import {
 	Phone,
 	Edit,
 	Camera,
-	CheckCircle,
-	AlertCircle,
 	Link as LinkIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -60,7 +58,7 @@ import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentUser, logoutUser } from "@/functions/auth/authFunctions";
 import { toast } from "sonner";
-import { AlertCircle, CheckCircle } from "lucide-react";
+// interface ProfileWrapperProps removed props in favor of context-based data fetching
 
 interface ProfileWrapperProps {
 	children?: ReactNode;
@@ -195,23 +193,23 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 				>
 					<div>
 						<h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-							Môj profil
+							My Profile
 						</h1>
 						<p className="text-gray-600 dark:text-gray-400">
-							Správa vášho účtu a knižničných aktivít
+							Manage your account and library activities
 						</p>
 					</div>
 					<div className="flex items-center gap-3">
 						<Button variant="outline" size="sm" asChild>
 							<Link to="/">
 								<Home className="mr-2 h-4 w-4" />
-								Domov
+								Home
 							</Link>
 						</Button>
 						<Button variant="outline" size="sm" asChild>
 							<Link to="/books">
 								<BookOpen className="mr-2 h-4 w-4" />
-								Knižnica
+								Library
 							</Link>
 						</Button>
 					</div>
@@ -296,29 +294,27 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 											</div>
 										)}
 
-										{userData.grade && (
-											<div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-												<div className="flex items-center gap-2">
-													<Library className="h-4 w-4 text-gray-500" />
-													<span className="text-sm text-gray-600 dark:text-gray-400">
-														Trieda
-													</span>
-												</div>
-												<span className="text-sm font-medium">
-													{userData.grade}
+										<div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+											<div className="flex items-center gap-2">
+												<Library className="h-4 w-4 text-gray-500" />
+												<span className="text-sm text-gray-600 dark:text-gray-400">
+													Grade
 												</span>
 											</div>
-										)}
+											<span className="text-sm font-medium">
+												{userData.grade}
+											</span>
+										</div>
 									</div>
 
 									<div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 w-full">
 										<div className="flex items-center justify-between text-sm">
 											<span className="text-gray-600 dark:text-gray-400">
-												Členom od:
+												Member Since:
 											</span>
 											<span className="font-medium">
 												{new Date(userData.memberSince).toLocaleDateString(
-													"sk-SK",
+													"en-US",
 												)}
 											</span>
 										</div>
@@ -419,9 +415,9 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 										className="w-full justify-start"
 										asChild
 									>
-										<Link to="/loans">
+										<Link to={"/loans" as any}>
 											<BookOpen className="mr-3 h-4 w-4" />
-											Moje výpožičky
+											My Loans
 										</Link>
 									</Button>
 
@@ -430,9 +426,9 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 										className="w-full justify-start"
 										asChild
 									>
-										<Link to="/reservations">
+										<Link to={"/reservations" as any}>
 											<Calendar className="mr-3 h-4 w-4" />
-											Rezervácie
+											Reservations
 										</Link>
 									</Button>
 
@@ -441,9 +437,9 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 										className="w-full justify-start"
 										asChild
 									>
-										<Link to="/history">
+										<Link to={"/history" as any}>
 											<HistoryIcon className="mr-3 h-4 w-4" />
-											História
+											History
 										</Link>
 									</Button>
 
@@ -452,9 +448,9 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 										className="w-full justify-start"
 										asChild
 									>
-										<Link to="/fines">
+										<Link to={"/fines" as any}>
 											<CreditCard className="mr-3 h-4 w-4" />
-											Pokuty a platby
+											Fines and Payments
 										</Link>
 									</Button>
 								</div>
@@ -864,11 +860,11 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 										className="h-auto py-4 flex flex-col gap-2"
 										asChild
 									>
-										<Link to="/help/contact">
+										<Link to={"/help/contact" as any}>
 											<Mail className="h-6 w-6 mb-2" />
-											<span className="font-medium">Kontakt</span>
+											<span className="font-medium">Contact</span>
 											<span className="text-sm text-gray-500 dark:text-gray-400">
-												Kontaktujte knihovníka
+												Contact a librarian
 											</span>
 										</Link>
 									</Button>
@@ -886,19 +882,19 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 										</AlertDialogTrigger>
 										<AlertDialogContent>
 											<AlertDialogHeader>
-												<AlertDialogTitle>Ste si istý?</AlertDialogTitle>
+												<AlertDialogTitle>Are you sure?</AlertDialogTitle>
 												<AlertDialogDescription>
-													Naozaj sa chcete odhlásiť? Stratíte prístup k svojim
-													výpožičkam a rezerváciám, kým sa znova neprihlásite.
+													Do you really want to log out? You will lose access to your
+													loans and reservations until you log in again.
 												</AlertDialogDescription>
 											</AlertDialogHeader>
 											<AlertDialogFooter>
-												<AlertDialogCancel>Zrušiť</AlertDialogCancel>
+												<AlertDialogCancel>Cancel</AlertDialogCancel>
 												<AlertDialogAction
 													onClick={handleLogout}
 													className="bg-red-600 hover:bg-red-700"
 												>
-													Odhlásiť sa
+													Logout
 												</AlertDialogAction>
 											</AlertDialogFooter>
 										</AlertDialogContent>
