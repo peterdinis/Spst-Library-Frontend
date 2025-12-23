@@ -285,7 +285,7 @@ export function BookDetailPage() {
 	// Loading skeleton
 	if (isLoading) {
 		return (
-			<div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-4 md:p-8">
+			<div className="min-h-screen bg-linear-to-br from-background via-background to-muted/20 p-4 md:p-8">
 				<div className="max-w-6xl mx-auto">
 					<div className="mb-6">
 						<Skeleton className="h-10 w-32" />
@@ -307,7 +307,7 @@ export function BookDetailPage() {
 
 	if (isError) {
 		return (
-			<div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
+			<div className="min-h-screen bg-linear-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
 				<Card className="max-w-md w-full">
 					<CardContent className="p-8 text-center space-y-4">
 						<AlertCircle className="h-12 w-12 text-destructive mx-auto" />
@@ -331,7 +331,7 @@ export function BookDetailPage() {
 
 	if (!book) {
 		return (
-			<div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
+			<div className="min-h-screen bg-linear-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
 				<Card className="max-w-md w-full">
 					<CardContent className="p-8 text-center space-y-4">
 						<AlertCircle className="h-12 w-12 text-muted-foreground mx-auto" />
@@ -369,7 +369,7 @@ export function BookDetailPage() {
 	const isBookAvailable = book.isAvailable !== false && availableCopies > 0;
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-4 md:p-8">
+		<div className="min-h-screen bg-linear-to-br from-background via-background to-muted/20 p-4 md:p-8">
 			<div className="max-w-6xl mx-auto">
 				<motion.div
 					initial={{ opacity: 0, x: -20 }}
@@ -431,7 +431,7 @@ export function BookDetailPage() {
 										loading="lazy"
 									/>
 								) : (
-									<div className="bg-gradient-to-br from-primary/80 to-purple-600 h-96 flex items-center justify-center relative overflow-hidden">
+									<div className="bg-linear-to-br from-primary/80 to-purple-600 h-96 flex items-center justify-center relative overflow-hidden">
 										<div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
 										<BookIcon className="h-48 w-48 text-white/20" />
 										<div className="absolute inset-0 flex items-center justify-center p-8">
@@ -558,7 +558,7 @@ export function BookDetailPage() {
 								</CardHeader>
 								<CardContent>
 									<div className="flex items-center gap-3 p-2 rounded-lg">
-										<div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+										<div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center">
 											<User className="h-6 w-6 text-white" />
 										</div>
 										<div>
@@ -692,7 +692,7 @@ export function BookDetailPage() {
 								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 									<div className="space-y-3">
 										<div className="flex items-start gap-3">
-											<div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+											<div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
 												<span className="text-primary text-sm font-bold">
 													1
 												</span>
@@ -705,7 +705,7 @@ export function BookDetailPage() {
 											</div>
 										</div>
 										<div className="flex items-start gap-3">
-											<div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+											<div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
 												<span className="text-primary text-sm font-bold">
 													2
 												</span>
@@ -720,7 +720,7 @@ export function BookDetailPage() {
 									</div>
 									<div className="space-y-3">
 										<div className="flex items-start gap-3">
-											<div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+											<div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
 												<span className="text-primary text-sm font-bold">
 													3
 												</span>
@@ -733,7 +733,7 @@ export function BookDetailPage() {
 											</div>
 										</div>
 										<div className="flex items-start gap-3">
-											<div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+											<div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
 												<span className="text-primary text-sm font-bold">
 													4
 												</span>
@@ -771,7 +771,7 @@ export function BookDetailPage() {
 											<Card className="hover:shadow-lg transition-all duration-300 border-border/50">
 												<CardContent className="p-4">
 													<div className="flex items-center gap-4">
-														<div className="w-16 h-24 bg-gradient-to-br from-muted to-muted/50 rounded flex items-center justify-center flex-shrink-0">
+														<div className="w-16 h-24 bg-linear-to-br from-muted to-muted/50 rounded flex items-center justify-center shrink-0">
 															<BookIcon className="h-8 w-8 text-muted-foreground" />
 														</div>
 														<div>

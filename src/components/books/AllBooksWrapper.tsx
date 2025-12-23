@@ -19,36 +19,16 @@ import {
 	Filter,
 	X,
 	Loader2,
-	AlertCircle,
 	RefreshCw,
-	TrendingUp,
-	MapPin,
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getAllBooks } from "../../functions/books/getAllBooks";
 
-// Typ pre knihu z API
-interface Book {
-	id: number | string;
-	title: string;
-	author?: string;
-	description?: string;
-	year?: number;
-	category?: string;
-	isAvailable?: boolean;
-	// Ďalšie polia podľa vášho API
-	publisher?: string;
-	pages?: number;
-	language?: string;
-	photoPath?: string;
-	addedToLibrary?: string;
-}
-
 const AllBooksWrapper: FC = () => {
 	const navigate = useNavigate();
 	const [searchTerm, setSearchTerm] = useState("");
-	const [currentPage, setCurrentPage] = useState(1);
+	const [, setCurrentPage] = useState(1);
 	const [showFilters, setShowFilters] = useState(false);
 	const [selectedCategory, setSelectedCategory] = useState<string>("all");
 	const [availability, setAvailability] = useState<string>("all");
@@ -178,7 +158,7 @@ const AllBooksWrapper: FC = () => {
 	// Loading state - Rovnaký ako pri spisovateľoch
 	if (isLoading) {
 		return (
-			<section className="py-16 bg-gradient-to-b from-background to-muted/30">
+			<section className="py-16 bg-linear-to-b from-background to-muted/30">
 				<div className="container mx-auto px-4">
 					<div className="flex flex-col items-center justify-center py-20">
 						<Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
@@ -194,7 +174,7 @@ const AllBooksWrapper: FC = () => {
 	if (isError) {
 		const errorMessage = error instanceof Error ? error.message : "Nastala neznáma chyba";
 		return (
-			<section className="py-16 bg-gradient-to-b from-background to-muted/30">
+			<section className="py-16 bg-linear-to-b from-background to-muted/30">
 				<div className="container mx-auto px-4">
 					<div className="text-center py-12">
 						<div className="mx-auto max-w-md">
@@ -217,7 +197,7 @@ const AllBooksWrapper: FC = () => {
 	// Empty state when no books
 	if (books.length === 0 && !isLoading) {
 		return (
-			<section className="py-16 bg-gradient-to-b from-background to-muted/30">
+			<section className="py-16 bg-linear-to-b from-background to-muted/30">
 				<div className="container mx-auto px-4">
 					{/* Header - Rovnaký štýl ako pri spisovateľoch */}
 					<motion.div
@@ -320,7 +300,7 @@ const AllBooksWrapper: FC = () => {
 	}
 
 	return (
-		<section className="py-16 bg-gradient-to-b from-background to-muted/30">
+		<section className="py-16 bg-linear-to-b from-background to-muted/30">
 			<div className="container mx-auto px-4">
 				{/* Header - Rovnaký štýl ako pri spisovateľoch */}
 				<motion.div

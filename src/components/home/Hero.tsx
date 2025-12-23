@@ -27,7 +27,7 @@ const Hero: FC = () => {
 					transition={{ duration: 2 }}
 					className="absolute inset-0 flex items-center justify-center"
 				>
-					<div className="w-[800px] h-[800px] rounded-full bg-amber-300/20 dark:bg-amber-200/10 blur-[120px]" />
+					<div className="w-200 h-200 rounded-full bg-amber-300/20 dark:bg-amber-200/10 blur-[120px]" />
 				</motion.div>
 
 				{/* Decorative shapes */}

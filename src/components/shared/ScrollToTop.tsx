@@ -23,7 +23,7 @@ export function ScrollToTop({
 }: ScrollToTopProps) {
 	const [isVisible, setIsVisible] = useState(false);
 	const [isAtBottom, setIsAtBottom] = useState(false);
-	const [scrollProgress, setScrollProgress] = useState(0);
+	const [, setScrollProgress] = useState(0);
 
 	// Funkcia na scrollovanie nahor
 	const scrollToTop = () => {
@@ -93,7 +93,7 @@ export function ScrollToTop({
 		},
 	};
 
-	const { buttonClass, icon, showLabel, size } = variants[variant];
+	const { buttonClass, icon, size } = variants[variant];
 
 	// Zobraziť len ak je viditeľný, alebo ak sme na spodku a chceme zobraziť aj tam
 	const shouldShow = isVisible || (showAtBottom && isAtBottom);
@@ -127,7 +127,7 @@ export function ScrollToTop({
 						>
 							{/* Hover efekt */}
 							<motion.div
-								className="absolute inset-0 bg-gradient-to-br from-primary/10 to-primary/5"
+								className="absolute inset-0 bg-linear-to-br from-primary/10 to-primary/5"
 								initial={{ opacity: 0 }}
 								whileHover={{ opacity: 1 }}
 								transition={{ duration: 0.2 }}
@@ -242,7 +242,7 @@ export function EnhancedScrollToTop({
 						<Button
 							onClick={() => setShowOptions(!showOptions)}
 							size="icon"
-							className="rounded-full h-12 w-12 shadow-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground"
+							className="rounded-full h-12 w-12 shadow-xl bg-linear-to-br from-primary to-primary/80 text-primary-foreground"
 						>
 							<ChevronUp className="h-5 w-5" />
 						</Button>

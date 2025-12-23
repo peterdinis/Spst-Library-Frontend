@@ -170,7 +170,7 @@ const AllCategoriesWrapper: FC = () => {
     // Loading state - Rovnaký ako pri spisovateľoch a knihách
     if (isLoading) {
         return (
-            <section className="py-16 bg-gradient-to-b from-background to-muted/30">
+            <section className="py-16 bg-linear-to-b from-background to-muted/30">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col items-center justify-center py-20">
                         <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
@@ -186,7 +186,7 @@ const AllCategoriesWrapper: FC = () => {
     if (isError) {
         const errorMessage = error instanceof Error ? error.message : "Nastala neznáma chyba";
         return (
-            <section className="py-16 bg-gradient-to-b from-background to-muted/30">
+            <section className="py-16 bg-linear-to-b from-background to-muted/30">
                 <div className="container mx-auto px-4">
                     <div className="text-center py-12">
                         <div className="mx-auto max-w-md">
@@ -209,7 +209,7 @@ const AllCategoriesWrapper: FC = () => {
     const categories = categoriesResponse || [];
 
     return (
-        <section className="py-16 bg-gradient-to-b from-background to-muted/30">
+        <section className="py-16 bg-linear-to-b from-background to-muted/30">
             <div className="container mx-auto px-4">
                 {/* Header - Rovnaký štýl ako pri spisovateľoch */}
                 <motion.div
