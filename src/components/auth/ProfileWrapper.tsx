@@ -1,5 +1,5 @@
 import { FC, ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import {
 	User,
@@ -12,7 +12,7 @@ import {
 	Library,
 	Calendar,
 	Star,
-	History,
+	History as HistoryIcon,
 	CreditCard,
 	Shield,
 	Mail,
@@ -21,6 +21,7 @@ import {
 	Camera,
 	CheckCircle,
 	AlertCircle,
+	Link as LinkIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,93 +56,131 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Input } from "../ui/input";
+import { Input } from "@/components/ui/input";
+import { useQuery } from "@tanstack/react-query";
+import { getCurrentUser, logoutUser } from "@/functions/auth/authFunctions";
+import { toast } from "sonner";
+import { AlertCircle, CheckCircle } from "lucide-react";
 
 interface ProfileWrapperProps {
 	children?: ReactNode;
-	userData?: {
-		name: string;
-		email: string;
-		avatarUrl?: string;
-		memberSince: string;
-		role: "student" | "teacher" | "librarian" | "admin";
-		studentId?: string;
-		grade?: string;
-		department?: string;
-		phone?: string;
-		address?: string;
-	};
-	stats?: {
-		booksBorrowed: number;
-		booksReturned: number;
-		currentLoans: number;
-		totalRead: number;
-		readingGoal: number;
-		fines: number;
-	};
 }
 
-const ProfileWrapper: FC<ProfileWrapperProps> = ({
-	children,
-	userData = {
-		name: "Ján Novák",
-		email: "jan.novak@skola.sk",
-		avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jan",
-		memberSince: "2023-09-01",
-		role: "student",
+const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
+	const router = useRouter();
+
+	const { data: authResponse, isLoading, isError } = useQuery({
+		queryKey: ["current-user"],
+		queryFn: () => getCurrentUser(),
+	});
+
+	const handleLogout = async () => {
+		try {
+			const result = await logoutUser();
+			if (result.success) {
+				toast.success("Logged out successfully");
+				router.navigate({ to: "/login" });
+			} else {
+				toast.error("Logout failed", { description: result.message });
+			}
+		} catch (error) {
+			toast.error("An error occurred during logout");
+		}
+	};
+
+	if (isLoading) {
+		return (
+			<div className="min-h-screen flex items-center justify-center bg-background/50 backdrop-blur-sm">
+				<motion.div
+					initial={{ opacity: 0, scale: 0.9 }}
+					animate={{ opacity: 1, scale: 1 }}
+					className="flex flex-col items-center gap-4"
+				>
+					<div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+					<p className="text-muted-foreground font-medium animate-pulse">
+						Loading your profile...
+					</p>
+				</motion.div>
+			</div>
+		);
+	}
+
+	if (isError || !authResponse?.success || !authResponse.data) {
+		return (
+			<div className="min-h-screen flex items-center justify-center">
+				<Card className="max-w-md w-full border-red-200 dark:border-red-900 shadow-xl">
+					<CardHeader className="text-center">
+						<div className="mx-auto w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
+							<AlertCircle className="h-6 w-6 text-red-600" />
+						</div>
+						<CardTitle className="text-xl">Authentication Required</CardTitle>
+						<CardDescription>
+							{authResponse?.message || "Please log in to view your profile."}
+						</CardDescription>
+					</CardHeader>
+					<CardFooter>
+						<Button className="w-full" asChild>
+							<Link to="/login">Go to Login</Link>
+						</Button>
+					</CardFooter>
+				</Card>
+			</div>
+		);
+	}
+
+	const user = authResponse.data;
+
+	// Mocking additional data not yet provided by the API
+	const userData = {
+		name: user.fullName || "User",
+		email: user.email,
+		avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`,
+		memberSince: "2023-09-01", // Default for now
 		studentId: "STU2023001",
 		grade: "4.A",
 		department: "Informatika",
-		phone: "+421 123 456 789",
-		address: "Školská 1, 12345 Mesto",
-	},
-	stats = {
+	};
+
+	const stats = {
 		booksBorrowed: 24,
 		booksReturned: 20,
 		currentLoans: 4,
 		totalRead: 18,
 		readingGoal: 25,
 		fines: 0,
-	},
-}) => {
-	const handleLogout = () => {
-		console.log("Odhlásenie používateľa");
-		// TODO: Implementovať odhlásenie
-		localStorage.removeItem("isAuthenticated");
-		localStorage.removeItem("userEmail");
-		window.location.href = "/login";
 	};
 
-	const getRoleBadge = (role: string) => {
+	const getRoleBadge = (roles: string[]) => {
+		const primaryRole = roles[0]?.toLowerCase() || "student";
 		const roleConfig = {
 			student: {
-				label: "Študent",
+				label: "Student",
 				variant: "default" as const,
 				color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
 			},
 			teacher: {
-				label: "Učiteľ",
+				label: "Teacher",
 				variant: "secondary" as const,
 				color:
 					"bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
 			},
 			librarian: {
-				label: "Knihovníčka",
+				label: "Librarian",
 				variant: "outline" as const,
 				color:
 					"bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300",
 			},
 			admin: {
-				label: "Administrátor",
+				label: "Administrator",
 				variant: "destructive" as const,
 				color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
 			},
 		};
 
-		return roleConfig[role as keyof typeof roleConfig] || roleConfig.student;
+		return roleConfig[primaryRole as keyof typeof roleConfig] || roleConfig.student;
 	};
 
-	const roleConfig = getRoleBadge(userData.role);
+	const roleConfig = getRoleBadge(user.roles);
 	const readingProgress = (stats.totalRead / stats.readingGoal) * 100;
 
 	return (
@@ -289,9 +328,9 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({
 
 							<CardFooter className="bg-gray-50 dark:bg-gray-800/30 px-6 py-4">
 								<Button variant="outline" className="w-full" asChild>
-									<Link to="/profile/edit">
+									<Link to="/profile" as={"any"}>
 										<Edit className="mr-2 h-4 w-4" />
-										Upraviť profil
+										Edit Profile
 									</Link>
 								</Button>
 							</CardFooter>
@@ -358,8 +397,8 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({
 										{readingProgress >= 100
 											? "Cieľ splnený! 🎉"
 											: "Zostáva prečítať " +
-												(stats.readingGoal - stats.totalRead) +
-												" kníh"}
+											(stats.readingGoal - stats.totalRead) +
+											" kníh"}
 									</div>
 								</div>
 							</CardContent>
@@ -403,7 +442,7 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({
 										asChild
 									>
 										<Link to="/history">
-											<History className="mr-3 h-4 w-4" />
+											<HistoryIcon className="mr-3 h-4 w-4" />
 											História
 										</Link>
 									</Button>
@@ -546,7 +585,7 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({
 													].map((loan, index) => {
 														const daysLeft = Math.ceil(
 															(new Date(loan.dueDate).getTime() - Date.now()) /
-																(1000 * 60 * 60 * 24),
+															(1000 * 60 * 60 * 24),
 														);
 														const isUrgent = daysLeft <= 3;
 
@@ -573,9 +612,8 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({
 																				{isUrgent && (
 																					<Badge
 																						variant="destructive"
-																						size="sm"
 																					>
-																						Pilné!
+																						Urgent!
 																					</Badge>
 																				)}
 																			</div>
@@ -697,13 +735,12 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({
 													className="flex items-start gap-3 p-4 border rounded-lg"
 												>
 													<div
-														className={`p-2 rounded-full ${
-															notification.type === "warning"
-																? "bg-amber-100 dark:bg-amber-900"
-																: notification.type === "success"
-																	? "bg-emerald-100 dark:bg-emerald-900"
-																	: "bg-blue-100 dark:bg-blue-900"
-														}`}
+														className={`p-2 rounded-full ${notification.type === "warning"
+															? "bg-amber-100 dark:bg-amber-900"
+															: notification.type === "success"
+																? "bg-emerald-100 dark:bg-emerald-900"
+																: "bg-blue-100 dark:bg-blue-900"
+															}`}
 													>
 														{notification.type === "warning" ? (
 															<AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -766,11 +803,11 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({
 															<div>
 																<p className="font-medium">iPhone 13</p>
 																<p className="text-sm text-gray-500 dark:text-gray-400">
-																	Pripojené teraz
+																	Connected now
 																</p>
 															</div>
 														</div>
-														<Badge variant="success">Aktívne</Badge>
+														<Badge variant="default">Active</Badge>
 													</div>
 
 													<div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
