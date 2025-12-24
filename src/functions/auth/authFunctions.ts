@@ -56,6 +56,17 @@ export type AuthServerResponse<T = unknown> = {
   identityErrors?: IdentityError[];
 };
 
+// User Profile interface (zodpovedá UserResponseDto)
+export interface UserProfileDto {
+  id: string;
+  email: string;
+  fullName: string;
+  roles: string[];
+  // Voliteľné polia pre ďalšie informácie
+  createdAt?: string;
+  lastLogin?: string;
+}
+
 // Pomocné funkcie pre lepšiu prácu s chybami
 export const formatZodError = (error: ZodError<any>): ZodFormattedError[] => {
   return error.issues.map((err: ZodIssue) => ({
@@ -225,7 +236,6 @@ export const loginUser = createServerFn({ method: "POST" })
     },
   );
 
-
 export const logoutUser = createServerFn({ method: "POST" }).handler(
   async (): Promise<AuthServerResponse<AuthResponse>> => {
     try {
@@ -273,6 +283,52 @@ export const getCurrentUser = createServerFn({ method: "GET" }).handler(
         success: false,
         error: "Failed to get current user",
         message: error instanceof Error ? error.message : "Nepodarilo sa načítať používateľa",
+        timestamp: new Date().toISOString(),
+      };
+    }
+  },
+);
+
+// Špecifická funkcia pre user profile (s rozšírenými údajmi)
+export const getUserProfile = createServerFn({ method: "GET" }).handler(
+  async (): Promise<AuthServerResponse<UserProfileDto | undefined>> => {
+    try {
+      const response = await authApi.getCurrentUser();
+      
+      // Prevod UserResponseDto na UserProfileDto
+      const userProfile: UserProfileDto = {
+        id: response.id,
+        email: response.email,
+        fullName: response.fullName,
+        roles: response.roles,
+        // Môžete pridať ďalšie polia ak existujú v API
+        createdAt: new Date().toISOString(), // Toto by malo byť z backendu
+        lastLogin: new Date().toISOString(), // Toto by malo byť z backendu
+      };
+      
+      return {
+        success: true,
+        data: userProfile,
+        timestamp: new Date().toISOString(),
+        message: "User profile retrieved successfully"
+      };
+    } catch (error: any) {
+      console.error("Error getting user profile:", error);
+      
+      if (error.status === 401) {
+        return {
+          success: false,
+          error: "Not authenticated",
+          message: "Nie ste prihlásený",
+          timestamp: new Date().toISOString(),
+          statusCode: 401,
+        };
+      }
+      
+      return {
+        success: false,
+        error: "Failed to get user profile",
+        message: error instanceof Error ? error.message : "Nepodarilo sa načítať profil",
         timestamp: new Date().toISOString(),
       };
     }
@@ -387,6 +443,7 @@ export const authFunctions = {
   loginUser,
   logoutUser,
   getCurrentUser,
+  getUserProfile,
   registerWithConfirmUser,
   validateEmail,
   validatePassword,
