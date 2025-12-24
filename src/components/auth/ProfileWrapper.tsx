@@ -67,7 +67,11 @@ interface ProfileWrapperProps {
 const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 	const router = useRouter();
 
-	const { data: authResponse, isLoading, isError } = useQuery({
+	const {
+		data: authResponse,
+		isLoading,
+		isError,
+	} = useQuery({
 		queryKey: ["current-user"],
 		queryFn: () => getCurrentUser(),
 	});
@@ -175,7 +179,9 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 			},
 		};
 
-		return roleConfig[primaryRole as keyof typeof roleConfig] || roleConfig.student;
+		return (
+			roleConfig[primaryRole as keyof typeof roleConfig] || roleConfig.student
+		);
 	};
 
 	const roleConfig = getRoleBadge(user.roles);
@@ -393,8 +399,8 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 										{readingProgress >= 100
 											? "Cieľ splnený! 🎉"
 											: "Zostáva prečítať " +
-											(stats.readingGoal - stats.totalRead) +
-											" kníh"}
+												(stats.readingGoal - stats.totalRead) +
+												" kníh"}
 									</div>
 								</div>
 							</CardContent>
@@ -581,7 +587,7 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 													].map((loan, index) => {
 														const daysLeft = Math.ceil(
 															(new Date(loan.dueDate).getTime() - Date.now()) /
-															(1000 * 60 * 60 * 24),
+																(1000 * 60 * 60 * 24),
 														);
 														const isUrgent = daysLeft <= 3;
 
@@ -606,9 +612,7 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 																					).toLocaleDateString("sk-SK")}
 																				</span>
 																				{isUrgent && (
-																					<Badge
-																						variant="destructive"
-																					>
+																					<Badge variant="destructive">
 																						Urgent!
 																					</Badge>
 																				)}
@@ -731,12 +735,13 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 													className="flex items-start gap-3 p-4 border rounded-lg"
 												>
 													<div
-														className={`p-2 rounded-full ${notification.type === "warning"
-															? "bg-amber-100 dark:bg-amber-900"
-															: notification.type === "success"
-																? "bg-emerald-100 dark:bg-emerald-900"
-																: "bg-blue-100 dark:bg-blue-900"
-															}`}
+														className={`p-2 rounded-full ${
+															notification.type === "warning"
+																? "bg-amber-100 dark:bg-amber-900"
+																: notification.type === "success"
+																	? "bg-emerald-100 dark:bg-emerald-900"
+																	: "bg-blue-100 dark:bg-blue-900"
+														}`}
 													>
 														{notification.type === "warning" ? (
 															<AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -884,8 +889,8 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 											<AlertDialogHeader>
 												<AlertDialogTitle>Are you sure?</AlertDialogTitle>
 												<AlertDialogDescription>
-													Do you really want to log out? You will lose access to your
-													loans and reservations until you log in again.
+													Do you really want to log out? You will lose access to
+													your loans and reservations until you log in again.
 												</AlertDialogDescription>
 											</AlertDialogHeader>
 											<AlertDialogFooter>

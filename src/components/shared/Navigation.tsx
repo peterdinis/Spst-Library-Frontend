@@ -14,12 +14,12 @@ export function Navigation() {
 	const router = useRouter();
 
 	// Query na kontrolu prihlásenia používateľa
-	const { 
-		data: userResponse, 
-		isLoading, 
-		isError 
+	const {
+		data: userResponse,
+		isLoading,
+		isError,
 	} = useQuery({
-		queryKey: ['userProfile'],
+		queryKey: ["userProfile"],
 		queryFn: () => getCurrentUser(),
 		retry: 1,
 		staleTime: 5 * 60 * 1000,
@@ -45,9 +45,10 @@ export function Navigation() {
 	] as const;
 
 	// Všetky linky zahrňujúce admin linky ak je používateľ admin
-	const allNavLinks = isLoggedIn && userResponse.data?.roles?.includes('Admin') 
-		? [...navLinks, ...adminLinks] 
-		: navLinks;
+	const allNavLinks =
+		isLoggedIn && userResponse.data?.roles?.includes("Admin")
+			? [...navLinks, ...adminLinks]
+			: navLinks;
 
 	return (
 		<header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -79,12 +80,12 @@ export function Navigation() {
 										whileTap={{ scale: 0.95 }}
 										className={`
 											text-sm font-medium transition-colors hover:text-primary relative cursor-pointer
-											${link.to.startsWith('/admin') ? 'text-red-600 dark:text-red-400' : ''}
+											${link.to.startsWith("/admin") ? "text-red-600 dark:text-red-400" : ""}
 											${isActive ? "text-primary underline decoration-2 underline-offset-4" : "text-foreground/80"}
 										`}
 									>
 										{link.label}
-										{link.to.startsWith('/admin') && (
+										{link.to.startsWith("/admin") && (
 											<span className="absolute -top-1 -right-2.5 h-2 w-2 rounded-full bg-red-500"></span>
 										)}
 									</motion.span>
@@ -95,7 +96,7 @@ export function Navigation() {
 
 					<div className="hidden md:flex items-center space-x-4">
 						<ThemeToggle />
-						
+
 						{isLoading ? (
 							// Loading state
 							<div className="flex items-center space-x-3">
@@ -104,7 +105,7 @@ export function Navigation() {
 							</div>
 						) : isLoggedIn ? (
 							// Prihlásený používateľ - ProfileDropdown
-							<ProfileDropdown 
+							<ProfileDropdown
 								showNotificationBadge={true}
 								notificationCount={3}
 								className="ml-2"
@@ -133,20 +134,20 @@ export function Navigation() {
 					{/* Mobile Menu Button */}
 					<div className="flex items-center space-x-2 md:hidden">
 						<ThemeToggle />
-						
+
 						{isLoading ? (
 							// Mobile loading state
 							<Skeleton className="h-8 w-8 rounded-full" />
 						) : isLoggedIn ? (
 							// Mobile prihlásený používateľ - menšia verzia ProfileDropdown
 							<div className="mr-2">
-								<ProfileDropdown 
+								<ProfileDropdown
 									showNotificationBadge={true}
 									notificationCount={3}
 								/>
 							</div>
 						) : null}
-						
+
 						<button
 							onClick={toggleMenu}
 							className="p-2 text-foreground hover:text-primary transition-colors"
@@ -182,7 +183,7 @@ export function Navigation() {
 													transition={{ delay: index * 0.1 }}
 													className={`
 														text-sm font-medium transition-colors py-2 text-left cursor-pointer block pl-4 border-l-2
-														${link.to.startsWith('/admin') ? 'border-red-600 text-red-600 dark:text-red-400' : 'border-transparent'}
+														${link.to.startsWith("/admin") ? "border-red-600 text-red-600 dark:text-red-400" : "border-transparent"}
 														${
 															isActive
 																? "text-primary underline decoration-2 underline-offset-4"
@@ -191,7 +192,7 @@ export function Navigation() {
 													`}
 												>
 													{link.label}
-													{link.to.startsWith('/admin') && (
+													{link.to.startsWith("/admin") && (
 														<span className="ml-2 text-xs bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-0.5 rounded-full">
 															Admin
 														</span>
@@ -200,7 +201,7 @@ export function Navigation() {
 											)}
 										</Link>
 									))}
-									
+
 									{/* Mobile Auth Buttons */}
 									<motion.div
 										initial={{ opacity: 0, x: -20 }}
@@ -217,7 +218,7 @@ export function Navigation() {
 										) : isLoggedIn ? (
 											// Mobile prihlásený používateľ - v mobile menü už je ProfileDropdown v headeri
 											<div className="text-center py-2 text-sm text-muted-foreground">
-												Vitajte, {userResponse.data?.fullName?.split(' ')[0]}
+												Vitajte, {userResponse.data?.fullName?.split(" ")[0]}
 											</div>
 										) : (
 											// Mobile neprihlásený používateľ
@@ -247,7 +248,7 @@ export function Navigation() {
 											</>
 										)}
 									</motion.div>
-									
+
 									{/* Mobile Theme Toggle */}
 									<motion.div
 										initial={{ opacity: 0, x: -20 }}
@@ -256,7 +257,9 @@ export function Navigation() {
 										className="pt-2 border-t border-border/40 mt-2"
 									>
 										<div className="flex items-center justify-between px-4 py-2">
-											<span className="text-sm text-foreground/80">Tmavý režim</span>
+											<span className="text-sm text-foreground/80">
+												Tmavý režim
+											</span>
 											<ThemeToggle />
 										</div>
 									</motion.div>

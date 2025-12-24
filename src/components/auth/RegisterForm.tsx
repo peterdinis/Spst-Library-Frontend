@@ -52,48 +52,51 @@ const RegisterForm: FC = () => {
 		onError: (error: any) => {
 			// Vylepšený error handling pre password validation
 			if (error?.data) {
-				const passwordErrors = error.data.filter((err: any) => 
-					err.code?.includes('Password')
+				const passwordErrors = error.data.filter((err: any) =>
+					err.code?.includes("Password"),
 				);
-				
+
 				if (passwordErrors.length > 0) {
 					const errorMessages = passwordErrors.map((err: any) => {
-						switch(err.code) {
-							case 'PasswordRequiresNonAlphanumeric':
+						switch (err.code) {
+							case "PasswordRequiresNonAlphanumeric":
 								return "Heslo musí obsahovať aspoň jeden špeciálny znak (napr. !, @, #, $)";
-							case 'PasswordRequiresDigit':
+							case "PasswordRequiresDigit":
 								return "Heslo musí obsahovať aspoň jednu číslicu (0-9)";
-							case 'PasswordRequiresLower':
+							case "PasswordRequiresLower":
 								return "Heslo musí obsahovať aspoň jedno malé písmeno (a-z)";
-							case 'PasswordRequiresUpper':
+							case "PasswordRequiresUpper":
 								return "Heslo musí obsahovať aspoň jedno veľké písmeno (A-Z)";
-							case 'PasswordTooShort':
+							case "PasswordTooShort":
 								return "Heslo musí mať aspoň 6 znakov";
 							default:
 								return err.description;
 						}
 					});
-					
+
 					toast.error("Chyba hesla", {
 						description: (
 							<ul className="list-disc list-inside space-y-1">
-								{errorMessages.map((msg: string, idx: Key | null | undefined) => (
-									<li key={idx}>{msg}</li>
-								))}
+								{errorMessages.map(
+									(msg: string, idx: Key | null | undefined) => (
+										<li key={idx}>{msg}</li>
+									),
+								)}
 							</ul>
 						),
 					});
 					return;
 				}
-				
+
 				// Ak sú iné chyby
-				const errorMessage = error.data[0]?.description || "Nastala neznáma chyba";
+				const errorMessage =
+					error.data[0]?.description || "Nastala neznáma chyba";
 				toast.error("Chyba registrácie", {
 					description: errorMessage,
 				});
 				return;
 			}
-			
+
 			// Generická chyba
 			toast.error("Chyba", {
 				description: error.message || "Pri registrácii nastala chyba",
@@ -120,11 +123,15 @@ const RegisterForm: FC = () => {
 	// Funkcia pre zobrazenie detailnej chyby
 	const renderErrorDetails = () => {
 		if (!registerMutation.error?.data) return null;
-		
+
 		const errors = registerMutation.error.data;
-		const passwordErrors = errors.filter((err: any) => err.code?.includes('Password'));
-		const otherErrors = errors.filter((err: any) => !err.code?.includes('Password'));
-		
+		const passwordErrors = errors.filter((err: any) =>
+			err.code?.includes("Password"),
+		);
+		const otherErrors = errors.filter(
+			(err: any) => !err.code?.includes("Password"),
+		);
+
 		return (
 			<div className="space-y-4">
 				{passwordErrors.length > 0 && (
@@ -138,13 +145,14 @@ const RegisterForm: FC = () => {
 								<ul className="list-disc list-inside space-y-1 text-sm text-red-700 dark:text-red-400">
 									{passwordErrors.map((err: any, idx: number) => {
 										let message = err.description;
-										if (err.code === 'PasswordRequiresNonAlphanumeric') {
-											message = "Musí obsahovať špeciálny znak (!, @, #, $, %, atď.)";
-										} else if (err.code === 'PasswordRequiresDigit') {
+										if (err.code === "PasswordRequiresNonAlphanumeric") {
+											message =
+												"Musí obsahovať špeciálny znak (!, @, #, $, %, atď.)";
+										} else if (err.code === "PasswordRequiresDigit") {
 											message = "Musí obsahovať aspoň jednu číslicu (0-9)";
-										} else if (err.code === 'PasswordRequiresLower') {
+										} else if (err.code === "PasswordRequiresLower") {
 											message = "Musí obsahovať aspoň jedno malé písmeno";
-										} else if (err.code === 'PasswordRequiresUpper') {
+										} else if (err.code === "PasswordRequiresUpper") {
 											message = "Musí obsahovať aspoň jedno veľké písmeno";
 										}
 										return <li key={idx}>{message}</li>;
@@ -154,7 +162,7 @@ const RegisterForm: FC = () => {
 						</div>
 					</div>
 				)}
-				
+
 				{otherErrors.length > 0 && (
 					<div className="rounded-lg bg-yellow-50 dark:bg-yellow-950/20 p-4 border border-yellow-200 dark:border-yellow-800">
 						<div className="flex items-start gap-3">
@@ -251,7 +259,7 @@ const RegisterForm: FC = () => {
 						<CardContent className="space-y-5">
 							{/* Zobrazenie detailných chýb z API */}
 							{registerMutation.error?.data && renderErrorDetails()}
-							
+
 							{/* Generická chybová hláška */}
 							{registerMutation.error && !registerMutation.error?.data && (
 								<motion.div
@@ -306,16 +314,19 @@ const RegisterForm: FC = () => {
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.value)}
 												className={`pl-11 h-12 border-2 transition-all focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 relative z-20 ${
-													field.state.meta.errors?.length > 0 ? "border-red-500 focus:border-red-500" : ""
+													field.state.meta.errors?.length > 0
+														? "border-red-500 focus:border-red-500"
+														: ""
 												}`}
 												disabled={isLoading}
 											/>
 										</div>
-										{field.state.meta.errors && field.state.meta.errors.length > 0 && (
-											<p className="text-sm text-red-500 italic">
-												{field.state.meta.errors.join(", ")}
-											</p>
-										)}
+										{field.state.meta.errors &&
+											field.state.meta.errors.length > 0 && (
+												<p className="text-sm text-red-500 italic">
+													{field.state.meta.errors.join(", ")}
+												</p>
+											)}
 									</motion.div>
 								)}
 							/>
@@ -356,16 +367,19 @@ const RegisterForm: FC = () => {
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.value)}
 												className={`pl-11 h-12 border-2 transition-all focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20 relative z-20 ${
-													field.state.meta.errors?.length > 0 ? "border-red-500 focus:border-red-500" : ""
+													field.state.meta.errors?.length > 0
+														? "border-red-500 focus:border-red-500"
+														: ""
 												}`}
 												disabled={isLoading}
 											/>
 										</div>
-										{field.state.meta.errors && field.state.meta.errors.length > 0 && (
-											<p className="text-sm text-red-500 italic">
-												{field.state.meta.errors.join(", ")}
-											</p>
-										)}
+										{field.state.meta.errors &&
+											field.state.meta.errors.length > 0 && (
+												<p className="text-sm text-red-500 italic">
+													{field.state.meta.errors.join(", ")}
+												</p>
+											)}
 									</motion.div>
 								)}
 							/>
@@ -376,15 +390,20 @@ const RegisterForm: FC = () => {
 								validators={{
 									onChange: ({ value }) => {
 										if (!value.trim()) return "Heslo je povinné";
-										if (value.length < 6) return "Heslo musí mať aspoň 6 znakov";
-										
+										if (value.length < 6)
+											return "Heslo musí mať aspoň 6 znakov";
+
 										// Frontend validácia podľa backendových pravidiel
 										const errors = [];
-										if (!/[0-9]/.test(value)) errors.push("aspoň jednu číslicu");
-										if (!/[a-z]/.test(value)) errors.push("aspoň jedno malé písmeno");
-										if (!/[A-Z]/.test(value)) errors.push("aspoň jedno veľké písmeno");
-										if (!/[^a-zA-Z0-9]/.test(value)) errors.push("aspoň jeden špeciálny znak");
-										
+										if (!/[0-9]/.test(value))
+											errors.push("aspoň jednu číslicu");
+										if (!/[a-z]/.test(value))
+											errors.push("aspoň jedno malé písmeno");
+										if (!/[A-Z]/.test(value))
+											errors.push("aspoň jedno veľké písmeno");
+										if (!/[^a-zA-Z0-9]/.test(value))
+											errors.push("aspoň jeden špeciálny znak");
+
 										if (errors.length > 0) {
 											return `Heslo musí obsahovať: ${errors.join(", ")}`;
 										}
@@ -416,18 +435,22 @@ const RegisterForm: FC = () => {
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.value)}
 												className={`pl-11 h-12 border-2 transition-all focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 relative z-20 ${
-													field.state.meta.errors?.length > 0 ? "border-red-500 focus:border-red-500" : ""
+													field.state.meta.errors?.length > 0
+														? "border-red-500 focus:border-red-500"
+														: ""
 												}`}
 												disabled={isLoading}
 											/>
 										</div>
-										{field.state.meta.errors && field.state.meta.errors.length > 0 && (
-											<p className="text-sm text-red-500 italic">
-												{field.state.meta.errors.join(", ")}
-											</p>
-										)}
+										{field.state.meta.errors &&
+											field.state.meta.errors.length > 0 && (
+												<p className="text-sm text-red-500 italic">
+													{field.state.meta.errors.join(", ")}
+												</p>
+											)}
 										<p className="text-xs text-gray-500 dark:text-gray-400">
-											Heslo musí obsahovať aspoň 6 znakov: veľké a malé písmená, číslicu a špeciálny znak
+											Heslo musí obsahovať aspoň 6 znakov: veľké a malé písmená,
+											číslicu a špeciálny znak
 										</p>
 									</motion.div>
 								)}
@@ -472,16 +495,19 @@ const RegisterForm: FC = () => {
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.value)}
 												className={`pl-11 h-12 border-2 transition-all focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20 relative z-20 ${
-													field.state.meta.errors?.length > 0 ? "border-red-500 focus:border-red-500" : ""
+													field.state.meta.errors?.length > 0
+														? "border-red-500 focus:border-red-500"
+														: ""
 												}`}
 												disabled={isLoading}
 											/>
 										</div>
-										{field.state.meta.errors && field.state.meta.errors.length > 0 && (
-											<p className="text-sm text-red-500 italic">
-												{field.state.meta.errors.join(", ")}
-											</p>
-										)}
+										{field.state.meta.errors &&
+											field.state.meta.errors.length > 0 && (
+												<p className="text-sm text-red-500 italic">
+													{field.state.meta.errors.join(", ")}
+												</p>
+											)}
 									</motion.div>
 								)}
 							/>
@@ -568,7 +594,7 @@ const RegisterForm: FC = () => {
 					</form>
 				</Card>
 			</motion.div>
-			
+
 			{/* Nápoveda pre heslo */}
 			<motion.div
 				initial={{ opacity: 0 }}

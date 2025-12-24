@@ -1,16 +1,16 @@
 import { FC } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { 
-	Mail, 
-	Lock, 
-	LogIn, 
-	BookOpen, 
-	Sparkles, 
-	AlertCircle, 
+import {
+	Mail,
+	Lock,
+	LogIn,
+	BookOpen,
+	Sparkles,
+	AlertCircle,
 	Key,
 	User,
-	Shield
+	Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,7 +45,9 @@ const LoginForm: FC = () => {
 			} else {
 				if (response.statusCode === 423) {
 					toast.error("Účet zablokovaný", {
-						description: response.message || "Účet je dočasne zablokovaný. Skúste to neskôr.",
+						description:
+							response.message ||
+							"Účet je dočasne zablokovaný. Skúste to neskôr.",
 						className: "bg-amber-600 text-white",
 					});
 				} else {
@@ -59,19 +61,20 @@ const LoginForm: FC = () => {
 			// Vylepšený error handling
 			if (error?.statusCode === 423) {
 				toast.error("Účet zablokovaný", {
-					description: "Účet je dočasne zablokovaný kvôli viacerým neúspešným pokusom. Skúste to neskôr.",
+					description:
+						"Účet je dočasne zablokovaný kvôli viacerým neúspešným pokusom. Skúste to neskôr.",
 					className: "bg-amber-600 text-white",
 				});
 				return;
 			}
-			
+
 			if (error?.statusCode === 401) {
 				toast.error("Neplatné prihlasovacie údaje", {
 					description: "Skontrolujte email a heslo",
 				});
 				return;
 			}
-			
+
 			toast.error("Chyba", {
 				description: error.message || "Pri prihlásení nastala chyba",
 			});
@@ -94,9 +97,9 @@ const LoginForm: FC = () => {
 	// Funkcia pre zobrazenie detailnej chyby
 	const renderErrorDetails = () => {
 		if (!loginMutation.error && !loginMutation.data?.error) return null;
-		
+
 		const errorData = loginMutation.error || loginMutation.data;
-		
+
 		if (errorData?.statusCode === 423) {
 			return (
 				<motion.div
@@ -119,7 +122,7 @@ const LoginForm: FC = () => {
 				</motion.div>
 			);
 		}
-		
+
 		if (errorData?.statusCode === 401) {
 			return (
 				<motion.div
@@ -135,14 +138,15 @@ const LoginForm: FC = () => {
 								Nesprávne prihlasovacie údaje
 							</p>
 							<p className="text-sm text-red-700 dark:text-red-400 mt-1">
-								Skontrolujte svoj email a heslo. Ak ste zabudli heslo, kontaktujte administrátora.
+								Skontrolujte svoj email a heslo. Ak ste zabudli heslo,
+								kontaktujte administrátora.
 							</p>
 						</div>
 					</div>
 				</motion.div>
 			);
 		}
-		
+
 		return (
 			<motion.div
 				initial={{ opacity: 0, scale: 0.95, y: -10 }}
@@ -209,7 +213,8 @@ const LoginForm: FC = () => {
 					>
 						<CardContent className="space-y-6">
 							{/* Zobrazenie chybových hlášok */}
-							{(loginMutation.error || loginMutation.data?.error) && renderErrorDetails()}
+							{(loginMutation.error || loginMutation.data?.error) &&
+								renderErrorDetails()}
 
 							{/* Email */}
 							<form.Field
@@ -247,16 +252,19 @@ const LoginForm: FC = () => {
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.value)}
 												className={`pl-11 h-12 border-2 transition-all focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 relative z-20 ${
-													field.state.meta.errors?.length > 0 ? "border-red-500 focus:border-red-500" : ""
+													field.state.meta.errors?.length > 0
+														? "border-red-500 focus:border-red-500"
+														: ""
 												} ${isLoading ? "opacity-50" : ""}`}
 												disabled={isLoading}
 											/>
 										</div>
-										{field.state.meta.errors && field.state.meta.errors.length > 0 && (
-											<p className="text-sm text-red-500 italic">
-												{field.state.meta.errors.join(", ")}
-											</p>
-										)}
+										{field.state.meta.errors &&
+											field.state.meta.errors.length > 0 && (
+												<p className="text-sm text-red-500 italic">
+													{field.state.meta.errors.join(", ")}
+												</p>
+											)}
 									</motion.div>
 								)}
 							/>
@@ -267,7 +275,8 @@ const LoginForm: FC = () => {
 								validators={{
 									onChange: ({ value }) => {
 										if (!value.trim()) return "Heslo je povinné";
-										if (value.length < 6) return "Heslo musí mať aspoň 6 znakov";
+										if (value.length < 6)
+											return "Heslo musí mať aspoň 6 znakov";
 										return undefined;
 									},
 								}}
@@ -296,16 +305,19 @@ const LoginForm: FC = () => {
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.value)}
 												className={`pl-11 h-12 border-2 transition-all focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 relative z-20 ${
-													field.state.meta.errors?.length > 0 ? "border-red-500 focus:border-red-500" : ""
+													field.state.meta.errors?.length > 0
+														? "border-red-500 focus:border-red-500"
+														: ""
 												} ${isLoading ? "opacity-50" : ""}`}
 												disabled={isLoading}
 											/>
 										</div>
-										{field.state.meta.errors && field.state.meta.errors.length > 0 && (
-											<p className="text-sm text-red-500 italic">
-												{field.state.meta.errors.join(", ")}
-											</p>
-										)}
+										{field.state.meta.errors &&
+											field.state.meta.errors.length > 0 && (
+												<p className="text-sm text-red-500 italic">
+													{field.state.meta.errors.join(", ")}
+												</p>
+											)}
 									</motion.div>
 								)}
 							/>
@@ -323,7 +335,9 @@ const LoginForm: FC = () => {
 										<Checkbox
 											id={field.name}
 											checked={field.state.value}
-											onCheckedChange={(checked: boolean) => field.handleChange(checked as boolean)}
+											onCheckedChange={(checked: boolean) =>
+												field.handleChange(checked as boolean)
+											}
 											disabled={isLoading}
 											className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
 										/>
@@ -355,18 +369,20 @@ const LoginForm: FC = () => {
 									</li>
 									<li className="flex items-center gap-2">
 										<div className="h-1.5 w-1.5 rounded-full bg-purple-600"></div>
-										<span className="font-medium">Učiteľ:</span> teacher@library.sk
+										<span className="font-medium">Učiteľ:</span>{" "}
+										teacher@library.sk
 									</li>
 									<li className="flex items-center gap-2">
 										<div className="h-1.5 w-1.5 rounded-full bg-emerald-600"></div>
-										<span className="font-medium">Študent:</span> student@library.sk
+										<span className="font-medium">Študent:</span>{" "}
+										student@library.sk
 									</li>
 									<li className="text-xs mt-2 text-blue-600 dark:text-blue-300 flex items-center gap-1">
 										<Key className="h-3 w-3" />
 										Heslo: ŠtudiaKnihy123!
 									</li>
 								</ul>
-								
+
 								<div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
 									<p className="text-xs text-blue-600 dark:text-blue-300">
 										💡 Pre všetky demo účty použite rovnaké heslo
@@ -376,7 +392,7 @@ const LoginForm: FC = () => {
 									</p>
 								</div>
 							</motion.div>
-							
+
 							{/* Bezpečnostné upozornenie */}
 							<motion.div
 								initial={{ opacity: 0 }}
@@ -386,7 +402,8 @@ const LoginForm: FC = () => {
 							>
 								<p className="text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
 									<AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
-									Po 5 neúspešných pokusoch bude účet dočasne zablokovaný na 15 minút
+									Po 5 neúspešných pokusoch bude účet dočasne zablokovaný na 15
+									minút
 								</p>
 							</motion.div>
 						</CardContent>
@@ -442,7 +459,7 @@ const LoginForm: FC = () => {
 					</form>
 				</Card>
 			</motion.div>
-			
+
 			{/* Pomocné informácie */}
 			<motion.div
 				initial={{ opacity: 0 }}
