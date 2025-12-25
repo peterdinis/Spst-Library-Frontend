@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import {
@@ -11,6 +11,8 @@ import {
 	Key,
 	User,
 	Shield,
+	Eye,
+	EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +33,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 const LoginForm: FC = () => {
 	const router = useRouter();
+	const [showPassword, setShowPassword] = useState(false);
 
 	const loginMutation = useMutation({
 		mutationFn: (data: LoginInput) => loginUser({ data }),
@@ -93,6 +96,11 @@ const LoginForm: FC = () => {
 	});
 
 	const isLoading = loginMutation.isPending;
+
+	// Funkcia na prepnutie zobrazenia hesla
+	const togglePasswordVisibility = () => {
+		setShowPassword(!showPassword);
+	};
 
 	// Funkcia pre zobrazenie detailnej chyby
 	const renderErrorDetails = () => {
@@ -299,18 +307,30 @@ const LoginForm: FC = () => {
 											<Input
 												id={field.name}
 												name={field.name}
-												type="password"
+												type={showPassword ? "text" : "password"}
 												placeholder="••••••••"
 												value={field.state.value}
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.value)}
-												className={`pl-11 h-12 border-2 transition-all focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 relative z-20 ${
+												className={`pl-11 pr-11 h-12 border-2 transition-all focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 relative z-20 ${
 													field.state.meta.errors?.length > 0
 														? "border-red-500 focus:border-red-500"
 														: ""
 												} ${isLoading ? "opacity-50" : ""}`}
 												disabled={isLoading}
 											/>
+											<button
+												type="button"
+												onClick={togglePasswordVisibility}
+												className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300 transition-colors z-30"
+												disabled={isLoading}
+											>
+												{showPassword ? (
+													<EyeOff className="h-5 w-5" />
+												) : (
+													<Eye className="h-5 w-5" />
+												)}
+											</button>
 										</div>
 										{field.state.meta.errors &&
 											field.state.meta.errors.length > 0 && (
@@ -350,48 +370,6 @@ const LoginForm: FC = () => {
 									</motion.div>
 								)}
 							/>
-
-							{/* Demo účty */}
-							<motion.div
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								transition={{ delay: 0.7 }}
-								className="rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 p-4 border border-blue-100 dark:border-blue-900"
-							>
-								<p className="text-sm font-semibold mb-2 text-blue-900 dark:text-blue-100 flex items-center gap-2">
-									<User className="h-4 w-4" />
-									Demo účty:
-								</p>
-								<ul className="space-y-1.5 text-sm text-blue-800 dark:text-blue-200">
-									<li className="flex items-center gap-2">
-										<div className="h-1.5 w-1.5 rounded-full bg-blue-600"></div>
-										<span className="font-medium">Admin:</span> admin@library.sk
-									</li>
-									<li className="flex items-center gap-2">
-										<div className="h-1.5 w-1.5 rounded-full bg-purple-600"></div>
-										<span className="font-medium">Učiteľ:</span>{" "}
-										teacher@library.sk
-									</li>
-									<li className="flex items-center gap-2">
-										<div className="h-1.5 w-1.5 rounded-full bg-emerald-600"></div>
-										<span className="font-medium">Študent:</span>{" "}
-										student@library.sk
-									</li>
-									<li className="text-xs mt-2 text-blue-600 dark:text-blue-300 flex items-center gap-1">
-										<Key className="h-3 w-3" />
-										Heslo: ŠtudiaKnihy123!
-									</li>
-								</ul>
-
-								<div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
-									<p className="text-xs text-blue-600 dark:text-blue-300">
-										💡 Pre všetky demo účty použite rovnaké heslo
-									</p>
-									<p className="text-xs text-blue-500 dark:text-blue-400 mt-1">
-										Heslo obsahuje: veľké/malé písmená, číslicu a špeciálny znak
-									</p>
-								</div>
-							</motion.div>
 
 							{/* Bezpečnostné upozornenie */}
 							<motion.div
@@ -458,25 +436,6 @@ const LoginForm: FC = () => {
 						</CardFooter>
 					</form>
 				</Card>
-			</motion.div>
-
-			{/* Pomocné informácie */}
-			<motion.div
-				initial={{ opacity: 0 }}
-				animate={{ opacity: 1 }}
-				transition={{ delay: 1.1 }}
-				className="mt-6 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
-			>
-				<h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-					<Sparkles className="h-4 w-4" />
-					Rýchla pomoc:
-				</h3>
-				<ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1 list-disc list-inside">
-					<li>Pri prvom prihlásení použite demo údaje vyššie</li>
-					<li>Ak ste zabudli heslo, kontaktujte administrátora</li>
-					<li>Účty s rolou "Admin" majú prístup k administrácii</li>
-					<li>Pre bezpečnosť odporúčame zmeniť heslo po prvom prihlásení</li>
-				</ul>
 			</motion.div>
 		</div>
 	);

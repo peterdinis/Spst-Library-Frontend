@@ -1,4 +1,4 @@
-import { FC, Key } from "react";
+import { FC, Key, useState } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import {
@@ -11,6 +11,8 @@ import {
 	Shield,
 	CheckCircle,
 	AlertCircle,
+	Eye,
+	EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +32,8 @@ import { useForm } from "@tanstack/react-form";
 
 const RegisterForm: FC = () => {
 	const router = useRouter();
+	const [showPassword, setShowPassword] = useState(false);
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 	const registerMutation = useMutation({
 		mutationFn: (data: RegisterInput) => registerUser({ data }),
@@ -182,6 +186,16 @@ const RegisterForm: FC = () => {
 				)}
 			</div>
 		);
+	};
+
+	// Funkcia na prepnutie zobrazenia hesla
+	const togglePasswordVisibility = () => {
+		setShowPassword(!showPassword);
+	};
+
+	// Funkcia na prepnutie zobrazenia potvrdenia hesla
+	const toggleConfirmPasswordVisibility = () => {
+		setShowConfirmPassword(!showConfirmPassword);
 	};
 
 	return (
@@ -429,18 +443,30 @@ const RegisterForm: FC = () => {
 											<Input
 												id={field.name}
 												name={field.name}
-												type="password"
+												type={showPassword ? "text" : "password"}
 												placeholder="••••••••"
 												value={field.state.value}
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.value)}
-												className={`pl-11 h-12 border-2 transition-all focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 relative z-20 ${
+												className={`pl-11 pr-11 h-12 border-2 transition-all focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 relative z-20 ${
 													field.state.meta.errors?.length > 0
 														? "border-red-500 focus:border-red-500"
 														: ""
 												}`}
 												disabled={isLoading}
 											/>
+											<button
+												type="button"
+												onClick={togglePasswordVisibility}
+												className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300 transition-colors z-30"
+												disabled={isLoading}
+											>
+												{showPassword ? (
+													<EyeOff className="h-5 w-5" />
+												) : (
+													<Eye className="h-5 w-5" />
+												)}
+											</button>
 										</div>
 										{field.state.meta.errors &&
 											field.state.meta.errors.length > 0 && (
@@ -489,18 +515,30 @@ const RegisterForm: FC = () => {
 											<Input
 												id={field.name}
 												name={field.name}
-												type="password"
+												type={showConfirmPassword ? "text" : "password"}
 												placeholder="••••••••"
 												value={field.state.value}
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.value)}
-												className={`pl-11 h-12 border-2 transition-all focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20 relative z-20 ${
+												className={`pl-11 pr-11 h-12 border-2 transition-all focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20 relative z-20 ${
 													field.state.meta.errors?.length > 0
 														? "border-red-500 focus:border-red-500"
 														: ""
 												}`}
 												disabled={isLoading}
 											/>
+											<button
+												type="button"
+												onClick={toggleConfirmPasswordVisibility}
+												className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300 transition-colors z-30"
+												disabled={isLoading}
+											>
+												{showConfirmPassword ? (
+													<EyeOff className="h-5 w-5" />
+												) : (
+													<Eye className="h-5 w-5" />
+												)}
+											</button>
 										</div>
 										{field.state.meta.errors &&
 											field.state.meta.errors.length > 0 && (
