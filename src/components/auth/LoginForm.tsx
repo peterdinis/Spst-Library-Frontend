@@ -31,12 +31,27 @@ import { loginUser } from "@/functions/auth/authFunctions";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 
+// Definícia typu pre login dáta podľa backendu
+interface LoginFormData {
+	email: string;
+	password: string;
+	rememberMe: boolean; // Zmena z rememberMe na rememberMe pre konzistenciu
+}
+
 const LoginForm: FC = () => {
 	const router = useRouter();
 	const [showPassword, setShowPassword] = useState(false);
 
 	const loginMutation = useMutation({
-		mutationFn: (data: LoginInput) => loginUser({ data }),
+		mutationFn: (data: LoginFormData) => {
+			// Prevod na LoginInput (ktorý zodpovedá backendovému LoginDto)
+			const loginInput: LoginInput = {
+				email: data.email,
+				password: data.password,
+				rememberMe: data.rememberMe, // Pridanie rememberMe pre backend
+			};
+			return loginUser({ data: loginInput });
+		},
 		onSuccess: (response) => {
 			if (response.success) {
 				toast.success("Prihlásenie úspešné!", {
@@ -44,8 +59,10 @@ const LoginForm: FC = () => {
 					className: "bg-emerald-600 text-white",
 				});
 
+				// Presmerovanie na profile alebo dashboard
 				router.navigate({ to: "/profile" });
 			} else {
+				// Špecifická chyba pre lockout
 				if (response.statusCode === 423) {
 					toast.error("Účet zablokovaný", {
 						description:
@@ -53,15 +70,25 @@ const LoginForm: FC = () => {
 							"Účet je dočasne zablokovaný. Skúste to neskôr.",
 						className: "bg-amber-600 text-white",
 					});
-				} else {
+				} 
+				// Chyba pre neplatné prihlasovacie údaje
+				else if (response.statusCode === 401) {
 					toast.error("Prihlásenie zlyhalo", {
 						description: response.message || "Nesprávne prihlasovacie údaje",
+					});
+				}
+				// Ostatné chyby
+				else {
+					toast.error("Prihlásenie zlyhalo", {
+						description: response.message || "Nastala neznáma chyba",
 					});
 				}
 			}
 		},
 		onError: (error: any) => {
-			// Vylepšený error handling
+			console.error("Login mutation error:", error);
+			
+			// Error handling pre rôzne typy chýb
 			if (error?.statusCode === 423) {
 				toast.error("Účet zablokovaný", {
 					description:
@@ -78,8 +105,18 @@ const LoginForm: FC = () => {
 				return;
 			}
 
-			toast.error("Chyba", {
-				description: error.message || "Pri prihlásení nastala chyba",
+			// Zod validačné chyby
+			if (error?.validationErrors) {
+				const errorMessages = error.validationErrors.map((err: any) => err.message).join(", ");
+				toast.error("Validačná chyba", {
+					description: errorMessages,
+				});
+				return;
+			}
+
+			// Generická chyba
+			toast.error("Chyba prihlásenia", {
+				description: error?.message || "Nastala neznáma chyba",
 			});
 		},
 	});
@@ -88,7 +125,7 @@ const LoginForm: FC = () => {
 		defaultValues: {
 			email: "",
 			password: "",
-			rememberMe: false,
+			rememberMe: false, // Zmena na rememberMe
 		},
 		onSubmit: async ({ value }) => {
 			loginMutation.mutate(value);
@@ -104,11 +141,14 @@ const LoginForm: FC = () => {
 
 	// Funkcia pre zobrazenie detailnej chyby
 	const renderErrorDetails = () => {
-		if (!loginMutation.error && !loginMutation.data?.error) return null;
+		const error = loginMutation.error as any;
+		const response = loginMutation.data;
 
-		const errorData = loginMutation.error || loginMutation.data;
+		// Ak je úspešná odpoveď, nezobrazovať chybu
+		if (response?.success) return null;
 
-		if (errorData?.statusCode === 423) {
+		// Overenie lockout chyby
+		if (response?.statusCode === 423 || error?.statusCode === 423) {
 			return (
 				<motion.div
 					initial={{ opacity: 0, scale: 0.95, y: -10 }}
@@ -131,7 +171,8 @@ const LoginForm: FC = () => {
 			);
 		}
 
-		if (errorData?.statusCode === 401) {
+		// Overenie neplatných prihlasovacích údajov
+		if (response?.statusCode === 401 || error?.statusCode === 401) {
 			return (
 				<motion.div
 					initial={{ opacity: 0, scale: 0.95, y: -10 }}
@@ -155,18 +196,65 @@ const LoginForm: FC = () => {
 			);
 		}
 
-		return (
-			<motion.div
-				initial={{ opacity: 0, scale: 0.95, y: -10 }}
-				animate={{ opacity: 1, scale: 1, y: 0 }}
-				className="relative overflow-hidden rounded-lg p-4 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-950/20 dark:to-pink-950/20 border border-red-200 dark:border-red-800"
-			>
-				<div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-red-500 to-pink-500"></div>
-				<p className="text-sm text-red-700 dark:text-red-300 ml-3">
-					{loginMutation.error?.message || "Pri prihlásení nastala chyba"}
-				</p>
-			</motion.div>
-		);
+		// Zod validačné chyby
+		if (error?.validationErrors) {
+			return (
+				<motion.div
+					initial={{ opacity: 0, scale: 0.95, y: -10 }}
+					animate={{ opacity: 1, scale: 1, y: 0 }}
+					className="relative overflow-hidden rounded-lg p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20 border border-yellow-200 dark:border-yellow-800"
+				>
+					<div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-yellow-500 to-orange-500"></div>
+					<div className="flex items-start gap-3 ml-3">
+						<AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+						<div>
+							<p className="text-sm font-medium text-yellow-800 dark:text-yellow-300">
+								Validačné chyby
+							</p>
+							<ul className="mt-1 space-y-1 text-sm text-yellow-700 dark:text-yellow-400">
+								{error.validationErrors.map((err: any, idx: number) => (
+									<li key={idx}>• {err.message}</li>
+								))}
+							</ul>
+						</div>
+					</div>
+				</motion.div>
+			);
+		}
+
+		// Iné chyby z odpovede
+		if (response?.error || response?.message) {
+			return (
+				<motion.div
+					initial={{ opacity: 0, scale: 0.95, y: -10 }}
+					animate={{ opacity: 1, scale: 1, y: 0 }}
+					className="relative overflow-hidden rounded-lg p-4 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-950/20 dark:to-pink-950/20 border border-red-200 dark:border-red-800"
+				>
+					<div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-red-500 to-pink-500"></div>
+					<p className="text-sm text-red-700 dark:text-red-300 ml-3">
+						{response.message || response.error || "Pri prihlásení nastala chyba"}
+					</p>
+				</motion.div>
+			);
+		}
+
+		// Chyby z mutation error
+		if (error?.message) {
+			return (
+				<motion.div
+					initial={{ opacity: 0, scale: 0.95, y: -10 }}
+					animate={{ opacity: 1, scale: 1, y: 0 }}
+					className="relative overflow-hidden rounded-lg p-4 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-950/20 dark:to-pink-950/20 border border-red-200 dark:border-red-800"
+				>
+					<div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-red-500 to-pink-500"></div>
+					<p className="text-sm text-red-700 dark:text-red-300 ml-3">
+						{error.message}
+					</p>
+				</motion.div>
+			);
+		}
+
+		return null;
 	};
 
 	return (
@@ -221,8 +309,7 @@ const LoginForm: FC = () => {
 					>
 						<CardContent className="space-y-6">
 							{/* Zobrazenie chybových hlášok */}
-							{(loginMutation.error || loginMutation.data?.error) &&
-								renderErrorDetails()}
+							{renderErrorDetails()}
 
 							{/* Email */}
 							<form.Field
@@ -342,7 +429,7 @@ const LoginForm: FC = () => {
 								)}
 							/>
 
-							{/* Remember Me */}
+							{/* Remember Me - pozmenené na rememberMe */}
 							<form.Field
 								name="rememberMe"
 								children={(field) => (

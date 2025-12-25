@@ -127,8 +127,8 @@ export const testAuthApi = createServerFn({ method: "GET" }).handler(
 );
 
 export const registerUser = createServerFn({ method: "POST" })
-	.inputValidator((data: RegisterInput) => {
-		const result = registerSchema.safeParse(data);
+	.inputValidator((data: RegisterWithConfirmInputZod) => {
+		const result = registerWithConfirmSchema.safeParse(data);
 		if (!result.success) {
 			const formattedErrors = formatZodError(result.error);
 			throw new Error(`Validation failed: ${JSON.stringify(formattedErrors)}`);
@@ -153,7 +153,10 @@ export const registerUser = createServerFn({ method: "POST" })
 	})
 	.handler(async ({ data }): Promise<AuthServerResponse<AuthResponse>> => {
 		try {
-			const response = await authApi.register(data);
+			// Odstrániť confirmPassword pred odoslaním
+			const { confirmPassword, ...registrationData } = data;
+			
+			const response = await authApi.register(registrationData);
 			return {
 				success: true,
 				data: response,

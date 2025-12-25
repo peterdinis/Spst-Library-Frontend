@@ -19,7 +19,8 @@ import {
 	Phone,
 	Edit,
 	Camera,
-	Link as LinkIcon,
+	AlertCircle,
+	CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -330,7 +331,7 @@ const ProfileWrapper: FC<ProfileWrapperProps> = ({ children }) => {
 
 							<CardFooter className="bg-gray-50 dark:bg-gray-800/30 px-6 py-4">
 								<Button variant="outline" className="w-full" asChild>
-									<Link to="/profile" as={"any"}>
+									<Link to="/profile">
 										<Edit className="mr-2 h-4 w-4" />
 										Edit Profile
 									</Link>
