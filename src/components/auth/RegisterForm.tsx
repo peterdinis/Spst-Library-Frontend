@@ -56,7 +56,7 @@ const RegisterForm: FC = () => {
 		},
 		onError: (error: any) => {
 			console.error("Mutation error:", error);
-			
+
 			// Ak je to Identity error
 			if (error?.identityErrors) {
 				const passwordErrors = error.identityErrors.filter((err: any) =>
@@ -97,7 +97,9 @@ const RegisterForm: FC = () => {
 
 				// Ak sú iné chyby
 				const errorMessage =
-					error.identityErrors[0]?.description || error.message || "Nastala neznáma chyba";
+					error.identityErrors[0]?.description ||
+					error.message ||
+					"Nastala neznáma chyba";
 				toast.error("Chyba registrácie", {
 					description: errorMessage,
 				});
@@ -106,7 +108,9 @@ const RegisterForm: FC = () => {
 
 			// Ak je to Zod validačná chyba
 			if (error?.validationErrors) {
-				const errorMessage = error.validationErrors.map((err: any) => err.message).join(", ");
+				const errorMessage = error.validationErrors
+					.map((err: any) => err.message)
+					.join(", ");
 				toast.error("Validačná chyba", {
 					description: errorMessage,
 				});
@@ -115,7 +119,8 @@ const RegisterForm: FC = () => {
 
 			// Generická chyba
 			toast.error("Chyba", {
-				description: error.message || error.error || "Pri registrácii nastala chyba",
+				description:
+					error.message || error.error || "Pri registrácii nastala chyba",
 			});
 		},
 	});
@@ -139,7 +144,7 @@ const RegisterForm: FC = () => {
 	// Funkcia pre zobrazenie detailnej chyby
 	const renderErrorDetails = () => {
 		const error = registerMutation.error as any;
-		
+
 		if (!error?.identityErrors && !error?.validationErrors) return null;
 
 		const identityErrors = error?.identityErrors || [];
@@ -235,7 +240,7 @@ const RegisterForm: FC = () => {
 		<div className="w-full max-w-md mx-auto mt-5">
 			{/* ... zvyšok kódu zostáva rovnaký ... */}
 			{/* (Zahŕňa všetko od motion.div s BookOpen až po form) */}
-			
+
 			<form
 				onSubmit={(e) => {
 					e.preventDefault();
@@ -248,29 +253,30 @@ const RegisterForm: FC = () => {
 					{renderErrorDetails()}
 
 					{/* Generická chybová hláška */}
-					{registerMutation.error && 
-					 !(registerMutation.error as any)?.identityErrors && 
-					 !(registerMutation.error as any)?.validationErrors && (
-						<motion.div
-							initial={{ opacity: 0, scale: 0.95, y: -10 }}
-							animate={{ opacity: 1, scale: 1, y: 0 }}
-							className="relative overflow-hidden rounded-lg p-4 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-950/20 dark:to-pink-950/20 border border-red-200 dark:border-red-800"
-						>
-							<div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-red-500 to-pink-500"></div>
-							<div className="ml-3">
-								<p className="text-sm font-medium text-red-800 dark:text-red-300">
-									Chyba pri registrácii
-								</p>
-								<p className="text-sm text-red-700 dark:text-red-400 mt-1">
-									{(registerMutation.error as any)?.message || "Neznáma chyba"}
-								</p>
-							</div>
-						</motion.div>
-					)}
+					{registerMutation.error &&
+						!(registerMutation.error as any)?.identityErrors &&
+						!(registerMutation.error as any)?.validationErrors && (
+							<motion.div
+								initial={{ opacity: 0, scale: 0.95, y: -10 }}
+								animate={{ opacity: 1, scale: 1, y: 0 }}
+								className="relative overflow-hidden rounded-lg p-4 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-950/20 dark:to-pink-950/20 border border-red-200 dark:border-red-800"
+							>
+								<div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-red-500 to-pink-500"></div>
+								<div className="ml-3">
+									<p className="text-sm font-medium text-red-800 dark:text-red-300">
+										Chyba pri registrácii
+									</p>
+									<p className="text-sm text-red-700 dark:text-red-400 mt-1">
+										{(registerMutation.error as any)?.message ||
+											"Neznáma chyba"}
+									</p>
+								</div>
+							</motion.div>
+						)}
 
 					{/* ... zvyšok formulárových polí zostáva rovnaký ... */}
 					{/* (Mená, email, heslo, potvrdenie hesla, rola) */}
-					
+
 					<form.Field
 						name="fullName"
 						validators={{
@@ -381,12 +387,10 @@ const RegisterForm: FC = () => {
 						validators={{
 							onChange: ({ value }) => {
 								if (!value.trim()) return "Heslo je povinné";
-								if (value.length < 6)
-									return "Heslo musí mať aspoň 6 znakov";
+								if (value.length < 6) return "Heslo musí mať aspoň 6 znakov";
 
 								const errors = [];
-								if (!/[0-9]/.test(value))
-									errors.push("aspoň jednu číslicu");
+								if (!/[0-9]/.test(value)) errors.push("aspoň jednu číslicu");
 								if (!/[a-z]/.test(value))
 									errors.push("aspoň jedno malé písmeno");
 								if (!/[A-Z]/.test(value))

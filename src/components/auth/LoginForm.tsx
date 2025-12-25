@@ -70,7 +70,7 @@ const LoginForm: FC = () => {
 							"Účet je dočasne zablokovaný. Skúste to neskôr.",
 						className: "bg-amber-600 text-white",
 					});
-				} 
+				}
 				// Chyba pre neplatné prihlasovacie údaje
 				else if (response.statusCode === 401) {
 					toast.error("Prihlásenie zlyhalo", {
@@ -87,7 +87,7 @@ const LoginForm: FC = () => {
 		},
 		onError: (error: any) => {
 			console.error("Login mutation error:", error);
-			
+
 			// Error handling pre rôzne typy chýb
 			if (error?.statusCode === 423) {
 				toast.error("Účet zablokovaný", {
@@ -107,7 +107,9 @@ const LoginForm: FC = () => {
 
 			// Zod validačné chyby
 			if (error?.validationErrors) {
-				const errorMessages = error.validationErrors.map((err: any) => err.message).join(", ");
+				const errorMessages = error.validationErrors
+					.map((err: any) => err.message)
+					.join(", ");
 				toast.error("Validačná chyba", {
 					description: errorMessages,
 				});
@@ -232,7 +234,9 @@ const LoginForm: FC = () => {
 				>
 					<div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-red-500 to-pink-500"></div>
 					<p className="text-sm text-red-700 dark:text-red-300 ml-3">
-						{response.message || response.error || "Pri prihlásení nastala chyba"}
+						{response.message ||
+							response.error ||
+							"Pri prihlásení nastala chyba"}
 					</p>
 				</motion.div>
 			);

@@ -61,7 +61,6 @@ export interface UserProfileDto {
 	id: string;
 	email: string;
 	fullName: string;
-	roles: string[];
 	// Voliteľné polia pre ďalšie informácie
 	createdAt?: string;
 	lastLogin?: string;
@@ -126,37 +125,39 @@ export const testAuthApi = createServerFn({ method: "GET" }).handler(
 	},
 );
 
+export type RegisterFormData = {
+	fullName: string;
+	email: string;
+	password: string;
+	confirmPassword: string;
+};
+
+const registerFormSchema = registerSchema
+	.extend({
+		confirmPassword: z.string().min(1, "Potvrdenie hesla je povinné"),
+	})
+	.refine((data) => data.password === data.confirmPassword, {
+		message: "Heslá sa nezhodujú",
+		path: ["confirmPassword"],
+	});
+
 export const registerUser = createServerFn({ method: "POST" })
-	.inputValidator((data: RegisterWithConfirmInputZod) => {
-		const result = registerWithConfirmSchema.safeParse(data);
+	.inputValidator((data: unknown) => {
+		const result = registerFormSchema.safeParse(data);
 		if (!result.success) {
 			const formattedErrors = formatZodError(result.error);
 			throw new Error(`Validation failed: ${JSON.stringify(formattedErrors)}`);
 		}
-
-		// Frontend validácia hesla pred odoslaním
-		const password = data.password;
-		if (password) {
-			const errors: string[] = [];
-			if (!/[0-9]/.test(password)) errors.push("aspoň jednu číslicu");
-			if (!/[a-z]/.test(password)) errors.push("aspoň jedno malé písmeno");
-			if (!/[A-Z]/.test(password)) errors.push("aspoň jedno veľké písmeno");
-			if (!/[^a-zA-Z0-9]/.test(password))
-				errors.push("aspoň jeden špeciálny znak");
-
-			if (errors.length > 0) {
-				throw new Error(`Heslo musí obsahovať: ${errors.join(", ")}`);
-			}
-		}
-
 		return result.data;
 	})
 	.handler(async ({ data }): Promise<AuthServerResponse<AuthResponse>> => {
 		try {
-			// Odstrániť confirmPassword pred odoslaním
+			// Konvertuj na RegisterInput (bez confirmPassword)
 			const { confirmPassword, ...registrationData } = data;
-			
+
+			// Odosli len dáta, ktoré backend očakáva: email, password, fullName
 			const response = await authApi.register(registrationData);
+
 			return {
 				success: true,
 				data: response,
@@ -304,7 +305,6 @@ export const getUserProfile = createServerFn({ method: "GET" }).handler(
 				id: response.id,
 				email: response.email,
 				fullName: response.fullName,
-				roles: response.roles,
 				// Môžete pridať ďalšie polia ak existujú v API
 				createdAt: new Date().toISOString(), // Toto by malo byť z backendu
 				lastLogin: new Date().toISOString(), // Toto by malo byť z backendu
